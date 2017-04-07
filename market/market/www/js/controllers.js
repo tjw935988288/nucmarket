@@ -1,8 +1,19 @@
 angular.module('starter.controllers', [])
 
-.controller('DashCtrl', function ($scope) { })
+.controller('DashCtrl', function ($scope,Chats) {
+    $scope.things = Chats.all();
+    $scope.changeStyle = function () {
+        console.log(this.id);
+    }
+})
+
+.controller('DashDetailCtrl', function ($scope,$stateParams,Chats) {
+    $scope.thing = Chats.get($stateParams.thingId);
+})
 
 .controller('PersonalCtrl', function ($scope) { })
+
+.controller('TalkingCtrl', function ($scope) { })
 
 .controller('PublishCtrl', function ($scope) {
     $scope.number = "";

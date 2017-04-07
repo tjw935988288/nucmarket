@@ -1,17 +1,24 @@
-<ion-view view-title="Dashboard">
-  <ion-content class="padding">
-    <h2>Welcome to Ionic</h2>
-    <p>
-    This is the Ionic starter for tabs-based apps. For other starters and ready-made templates, check out the <a href="http://market.ionic.io/starters" target="_blank">Ionic Market</a>.
-    </p>
-    <p>
-      To edit the content of each tab, edit the corresponding template file in <code>www/templates/</code>. This template is <code>www/templates/tab-dash.html</code>
-    </p>
-    <p>
-    If you need help with your app, join the Ionic Community on the <a href="http://forum.ionicframework.com" target="_blank">Ionic Forum</a>. Make sure to <a href="http://twitter.com/ionicframework" target="_blank">follow us</a> on Twitter to get important updates and announcements for Ionic developers.
-    </p>
-    <p>
-      For help sending push notifications, join the <a href="https://apps.ionic.io/signup" target="_blank">Ionic Platform</a> and check out <a href="http://docs.ionic.io/docs/push-overview" target="_blank">Ionic Push</a>. We also have other services available.
-    </p>
+<ion-view view-title="market">
+  <ion-nav-buttons side="right">
+      <button class="button button-clear" href="#/tab/dash/talking"><i class="icon ion-ios-chatbubble-outline"></i></button>
+  </ion-nav-buttons>
+  <div class="bar bar-subheader">
+      <div class="row">
+          <div class="col col-25 button button-clear button-positive" style="font-weight:bold;border-bottom:1px solid #0094ff">life</div>
+          <div class="col col-25 button button-clear button-positive" id="1" ng-click="changeStyle()">study</div>
+          <div class="col col-25 button button-clear button-positive">play</div>
+          <div class="col col-25 button button-clear button-positive">ionic</div>
+      </div>
+  </div>
+  <ion-content class="has-subheader">
+      <div class="list">
+
+          <a class="item item-thumbnail-left" ng-repeat="thing in things" href="#/tab/dash/{{thing.id}}">
+              <img src="{{thing.face}}">
+              <h2>{{thing.name}}</h2>
+              <p>100</p>
+          </a>
+
+      </div>
   </ion-content>
 </ion-view>
