@@ -8,9 +8,10 @@
                 <input type="text" placeholder="标题">
             </label>
             <label class="item item-input">
-                <textarea placeholder="商品描述" ng-model="number"></textarea>
+                <input type="text" placeholder="商品描述" ng-model="number" />
             </label>
-            <!--<p>剩余字数：<span ng-bind="surplus()"></span></p>-->
+            <p>{{number}}</p>
+            <p>剩余字数：<span ng-bind="surplus()"></span></p>
             <label class="item item-input">
                 <input type="text" placeholder="价格">
             </label>

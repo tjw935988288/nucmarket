@@ -1,1 +1,32 @@
 ﻿/* Empty. Add your own CSS if you like */
+a {
+    text-decoration:none;
+}
+
+.scroll-view.overflow-scroll {
+    position:absolute;
+}
+
+.home-project-scroll-container {
+  text-align: center;
+  width: 100%;
+  height: 50px;
+}
+
+.all-project-scroll {
+  width: 1000px;
+}
+
+.all-project-scroll .home-project-item {
+  float: left;
+  width: 90px;
+  border-style: none;
+  padding: 5px;
+  border-bottom-style:solid;
+  border-bottom-color:red;
+}
+
+a :active {
+    border-style:solid;
+    border-bottom-color:cornflowerblue;
+}

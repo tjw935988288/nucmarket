@@ -47,4 +47,37 @@ angular.module('starter.services', [])
       return null;
     }
   };
-});
+})
+
+.factory('Details', function () {
+    var details = {
+        id: 1,
+        name: 'Ben Sparrow',
+        things: 'iphone',
+        lastText: 'You on your way?',
+        pictures: ['img/ben.png', 'img/max.png', 'img/mike.png', 'img/perry.png']
+    };
+
+    return {
+        display: function () {
+            var len =  details.face.length;
+            if (len === 1) {
+                var more = document.getElementById("more");
+                more.style = "display:none";
+            }
+            else {
+                var one = document.getElementById("one");
+                one.style = "display:none";
+                for (var i = 0 ; i < len; i++) {
+                    var div = document.createElement("div");
+                    div.class = "picture-project-item";
+                    var img = document.createElement("img");
+                    img.src = details.pictures[i];
+                    //img的class样式还没有设置，还需要完善
+                    div.appendChild(src);
+                    more.appendChild(div);
+                }
+            }
+        }
+    };
+})

@@ -7,6 +7,27 @@ navigation history that also transitions its views in and out.
 
   <!-- Dashboard Tab -->
   <ion-tab title="goods" icon-off="ion-ios-pulse" icon-on="ion-ios-pulse-strong" href="#/tab/dash">
+    <div class="bar bar-subheader" overflow-scroll="true">
+          <ion-scroll direction="x" class="home-project-scroll-container">
+              <div class="all-project-scroll">
+                  <div class="home-project-item">
+                      <a href="#/tab/life">life</a>
+                  </div>
+                  <div class="home-project-item">
+                      <a href="#/tab/study">study</a>
+                  </div>
+                  <div class="home-project-item">
+                      <a href="#/tab/sports">sports</a>
+                  </div>
+                  <div class="home-project-item">
+                      <a href="#/tab/play">play</a>
+                  </div>
+                  <div class="home-project-item">
+                      <a href="#/tab/ionic">ionic</a>
+                  </div>
+              </div>
+          </ion-scroll>
+    </div>
     <ion-nav-view name="tab-dash"></ion-nav-view>
   </ion-tab>
 

@@ -49,77 +49,96 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
         url: '/dash',
         views: {
             'tab-dash': {
-                templateUrl: 'templates/tab-dash.html',
+                templateUrl: 'templates/dash/tab-dash.html',
                 controller: 'DashCtrl'
             }
         }
     })
+
     .state('tab.dash-detail', {
         url: '/dash/:thingId',
         views: {
             'tab-dash': {
-                templateUrl: 'templates/dash-detail.html',
+                templateUrl: 'templates/dash/dash-detail.html',
                 controller:'DashDetailCtrl'
             }
         }
     })
 
-    //.state('tab.chats', {
-    //    url: '/chats',
-    //    views: {
-    //      'tab-chats': {
-    //        templateUrl: 'templates/tab-chats.html',
-    //        controller: 'ChatsCtrl'
-    //      }
-    //    }
-    //  })
+    .state('tab.dash-life', {
+        url: '/life',
+        views: {
+            'tab-dash': {
+                templateUrl:'templates/dash/dash-life.html',
+                controller:'DashLifeCtrl'
+            }
+        }
+    })
+
+    .state('tab.dash-study', {
+        url: '/study',
+        views: {
+            'tab-dash': {
+                templateUrl: 'templates/dash/dash-study.html',
+                controller: 'DashStudyCtrl'
+            }
+        }
+    })
+
+    .state('tab.dash-spotrs', {
+        url: '/sports',
+        views: {
+            'tab-dash': {
+                templateUrl: 'templates/dash/dash-sports.html',
+                controller: 'DashSportsCtrl'
+            }
+        }
+    })
+
+    .state('tab.dash-play', {
+        url: '/play',
+        views: {
+            'tab-dash': {
+                templateUrl: 'templates/dash/dash-play.html',
+                controller: 'DashPlayCtrl'
+            }
+        }
+    })
+
+    .state('tab.dash-ionic', {
+        url: '/ionic',
+        views: {
+            'tab-dash': {
+                templateUrl: 'templates/dash/dash-ionic.html',
+                controller: 'DashIonicCtrl'
+            }
+        }
+    })
 
       .state('tab.publish', {
           url: '/publish',
           views: {
               'tab-publish': {
-                  templateUrl: 'templates/tab-publish.html',
+                  templateUrl: 'templates/publish/tab-publish.html',
                   controller:'PublishCtrl'
               }
           }
       })
-      .state('tab.chat-detail', {
-          url: '/chats/:chatId',
-          views: {
-              'tab-chats': {
-                  templateUrl: 'templates/chat-detail.html',
-                  controller: 'ChatDetailCtrl'
-              }
-          }
-      })
-
-    //.state('tab.account', {
-    //  url: '/account',
-    //  views: {
-    //    'tab-account': {
-    //      templateUrl: 'templates/tab-account.html',
-    //      controller: 'AccountCtrl'
-    //    }
-    //  }
-      //});
+      
       .state('tab.personal', {
           url: '/personal',
           views: {
               'tab-personal': {
-                  templateUrl: 'templates/tab-personal.html',
+                  templateUrl: 'templates/personal/tab-personal.html',
                   controller:'PersonalCtrl'
               }
           }
       })
 
-      .state('tab.dash-talking', {
-          url: '/dash/talking',
-          views: {
-              'tab-dash': {
-                  templateUrl: 'templates/dash-talking.html',
+      .state('talking', {
+          url: '/talking',
+                  templateUrl: 'templates/talking/dash-talking.html',
                   controller:'TalkingCtrl'
-              }
-          }
       })
 
   // if none of the above states are matched, use this as the fallback

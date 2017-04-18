@@ -1,15 +1,25 @@
 angular.module('starter.controllers', [])
 
-.controller('DashCtrl', function ($scope,Chats) {
+.controller('DashCtrl', function ($scope, Chats) {
+    $scope.headers = [0, 1, 2, 3];
     $scope.things = Chats.all();
-    $scope.changeStyle = function () {
-        console.log(this.id);
-    }
+
 })
 
 .controller('DashDetailCtrl', function ($scope,$stateParams,Chats) {
     $scope.thing = Chats.get($stateParams.thingId);
 })
+
+.controller('DashLifeCtrl', function ($scope) {
+})
+
+.controller('DashStudyCtrl', function ($scope) { })
+
+.controller('DashSportsCtrl', function ($scope) { })
+
+.controller('DashPlayCtrl', function ($scope) { })
+
+.controller('DashIonicCtrl', function ($scope) { })
 
 .controller('PersonalCtrl', function ($scope) { })
 
@@ -17,7 +27,9 @@ angular.module('starter.controllers', [])
 
 .controller('PublishCtrl', function ($scope) {
     $scope.number = "";
-    $scope.surplus = function () { return 140 - $scope.number.length;};
+    $scope.surplus = function () {
+        return 140 - $scope.number.length;
+    };
 })
 
 .controller('ChatsCtrl', function($scope, Chats) {

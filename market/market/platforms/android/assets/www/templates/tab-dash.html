@@ -1,11 +1,11 @@
 <ion-view view-title="market">
   <ion-nav-buttons side="right">
-      <button class="button button-clear" href="#/tab/dash/talking"><i class="icon ion-ios-chatbubble-outline"></i></button>
+      <a class="button button-clear" ng-href="#/talking"><i class="icon ion-ios-chatbubble-outline"></i></a>
   </ion-nav-buttons>
   <div class="bar bar-subheader">
       <div class="row">
           <div class="col col-25 button button-clear button-positive" style="font-weight:bold;border-bottom:1px solid #0094ff">life</div>
-          <div class="col col-25 button button-clear button-positive" id="1" ng-click="changeStyle()">study</div>
+          <div class="col col-25 button button-clear button-positive" id="1" on-tap="changeStyle()">study</div>
           <div class="col col-25 button button-clear button-positive">play</div>
           <div class="col col-25 button button-clear button-positive">ionic</div>
       </div>
