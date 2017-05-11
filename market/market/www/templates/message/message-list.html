@@ -1,0 +1,28 @@
+<!--<ion-view view-title="消息">
+    <ion-content>
+        <div class="list">-->
+            <!--ms-item-top用来给指定的消息添加背景效果，ng-repeat中通过过滤器实现消息置顶-->
+            <!--<a class="item" ng-class="{'ms-item-top': message.isTop}"  ng-repeat="m in ms | orderBy:['isTop', 'lastMessage.timeFrome1970']:true" >
+                <img ng-src="{{m.pic}}">-->
+                <!--头像右上角的红色计数器，通过ng-show判断span标签是否显示，注意，这里的变量showHints不应该放在message中，应该在controller
+                的$scope中定义一个变量来控制span标签是否显示-->
+                <!--<span class="ms-red-icon" ng-show="message.showHints"><p ng-bind="message.noReadMessages"></p></span>-->
+                <!--<h2>{{m.name}}</h2>
+                <p class="ms-list-p">{{m.lastMessage.content}}</p>
+                <span class="ms-push-right">{{m.lastMessage.time}}</span>
+            </a>
+        </div>
+    </ion-content>
+</ion-view-->>
+
+<ion-view view-title="消息">
+    <ion-content>
+        <div class="list">
+            <a class="item item-avatar" ng-repeat="many in manys | orderBy:['isTop', 'lastMessage.timeFrome1970']:true" on-hold="popupMessageOpthins(many)" ng-href="#/tab/message/{{many.id}}">
+                <img src="{{many.pic}}">
+                <h2>{{many.name}}</h2>
+                <p class="ms-list-p">{{many.lastMessage.content}}</p>
+            </a>
+        </div>
+    </ion-content>
+</ion-view>

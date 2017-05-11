@@ -5,7 +5,29 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'monospaced.elastic'])
+
+
+.directive('display', function (details) {
+    var len =  details.pictures.length;
+    if (len === 1) {
+        var more = document.getElementById("more");
+        more.style = "display:none";
+    }
+    else {
+        var one = document.getElementById("one");
+        one.style = "display:none";
+        for (var i = 0 ; i < len; i++) {
+            var div = document.createElement("div");
+            div.class = "picture-project-item";
+            var img = document.createElement("img");
+            img.src = "details.pictures[i]";
+            div.appendChild(src);
+            more.appendChild(div);
+        }
+    }
+})
+
 .config(['$ionicConfigProvider', function ($ionicConfigProvider) {
 
     $ionicConfigProvider.tabs.position('bottom');// other values: top
@@ -28,49 +50,30 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
   });
 })
 
-.config(function($stateProvider, $urlRouterProvider) {
-
-  // Ionic uses AngularUI Router which uses the concept of states
-  // Learn more here: https://github.com/angular-ui/ui-router
-  // Set up the various states which the app can be in.
-  // Each state's controller can be found in controllers.js
+.config(function ($stateProvider, $urlRouterProvider) {
     $stateProvider
-
-    // setup an abstract state for the tabs directive
       .state('tab', {
           url: '/tab',
           abstract: true,
           templateUrl: 'templates/tabs.html'
       })
 
-    // Each tab has its own nav history stack:
-
-    .state('tab.dash', {
-        url: '/dash',
-        views: {
-            'tab-dash': {
-                templateUrl: 'templates/dash/tab-dash.html',
-                controller: 'DashCtrl'
-            }
-        }
-    })
-
-    .state('tab.dash-detail', {
-        url: '/dash/:thingId',
-        views: {
-            'tab-dash': {
-                templateUrl: 'templates/dash/dash-detail.html',
-                controller:'DashDetailCtrl'
-            }
-        }
-    })
+    //.state('tab.dash', {
+    //    url: '/dash',
+    //    views: {
+    //        'tab-dash': {
+    //            templateUrl: 'templates/dash/tab-dash.html',
+    //            controller: 'DashCtrl'
+    //        }
+    //    }
+    //})
 
     .state('tab.dash-life', {
         url: '/life',
         views: {
             'tab-dash': {
-                templateUrl:'templates/dash/dash-life.html',
-                controller:'DashLifeCtrl'
+                templateUrl: 'templates/dash/dash-life.html',
+                controller: 'DashLifeCtrl'
             }
         }
     })
@@ -120,28 +123,82 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
           views: {
               'tab-publish': {
                   templateUrl: 'templates/publish/tab-publish.html',
-                  controller:'PublishCtrl'
+                  controller: 'PublishCtrl'
               }
           }
       })
-      
+
       .state('tab.personal', {
           url: '/personal',
           views: {
               'tab-personal': {
                   templateUrl: 'templates/personal/tab-personal.html',
-                  controller:'PersonalCtrl'
+                  controller: 'PersonalCtrl'
               }
           }
       })
 
-      .state('talking', {
-          url: '/talking',
-                  templateUrl: 'templates/talking/dash-talking.html',
-                  controller:'TalkingCtrl'
+      //state后的路由名字必须要在抽象视图的名字之后写，如:tab.collect-list。url
+      //后的内容必须写出抽象视图外的完整路径。如果需要在视口中显示则需要声明view
+      //对象，并在对象中声明视口对象。
+      //.state('tab.collect-list', {
+      //    url: '/personal/collect-list', 
+      //    views: {
+      //        'tab-personal': {
+      //            templateUrl: 'templates/collect/collect-list.html',
+      //            controller: 'CollectCtrl'
+      //        }
+      //    }
+      //})
+      .state('collect-list', {
+          url: '/collect-list',
+          templateUrl: 'templates/collect/collect-list.html',
+          controller: 'CollectCtrl'
       })
 
-  // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/tab/dash');
+      .state('tab.message', {
+          url: '/message',
+          views: {
+              'tab-message': {
+                  templateUrl: 'templates/message/message-list.html',
+                  controller: 'MessageListCtrl'
+              }
+          }
+      })
+
+    .state('tab.message-detail', {
+        url: '/message/:manyId',
+        views: {
+            'tab-message': {
+                templateUrl: 'templates/message/message-detail.html',
+                controller: 'MessageDetailCtrl'
+            }
+        }
+    })
+
+    .state('buy', {
+        url: '/buy',
+        templateUrl: 'templates/buyAndSell/buy-list.html',
+        controller: 'BuyCtrl'
+    })
+
+    .state('regist', {
+        url: '/regist',
+        templateUrl: 'templates/personal/regist.html'
+    })
+
+    .state('login', {
+        url: '/login',
+        templateUrl: 'templates/personal/login.html',
+        controller:'LoginCtrl'
+    })
+
+     //这个state要放在所有state的最后，应为/:thingid会匹配所有的脱离tab的页面，如:url:'/buy',从而造成路由错误。
+     .state('dash-detail', {
+         url: '/:thingId',
+         templateUrl: 'templates/dash/dash-detail.html',
+         controller: 'DashDetailCtrl'
+     })
+    $urlRouterProvider.otherwise('/tab/life');
 
 });

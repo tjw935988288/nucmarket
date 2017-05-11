@@ -2,16 +2,14 @@
   <ion-nav-buttons side="right">
       <a class="button button-clear" ng-href="#/talking"><i class="icon ion-ios-chatbubble-outline"></i></a>
   </ion-nav-buttons>
-  
+
   <ion-content class="has-subheader">
-          <div class="list">
-
-              <a class="item item-thumbnail-left" ng-repeat="thing in things" href="#/tab/dash/{{thing.id}}">
-                  <img src="{{thing.face}}">
-                  <h2>{{thing.name}}</h2>
-                  <p>100</p>
-              </a>
-
-          </div>
+      <div class="list">
+          <a class="item item-thumbnail-left" ng-repeat="thing in things" href="#/{{thing.id}}">
+              <img src="{{thing.face}}">
+              <h2>{{thing.name}}</h2>
+              <p>100</p>
+          </a>
+      </div>
   </ion-content>
 </ion-view>

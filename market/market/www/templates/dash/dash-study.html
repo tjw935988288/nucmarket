@@ -4,6 +4,18 @@
     </ion-nav-buttons>
 
     <ion-content class="has-subheader">
-        hello
+        <ion-refresher pulling-text="放手后刷新"  pulling-icon="ios-aperture-outline" refreshing-text="刷新成功" refreshing-icon="ios-aperture" on-refresh="doRefresh()"></ion-refresher> 
+        <div class="list" ng-if="judgeOnload">
+            <a class="item item-thumbnail-left" ng-repeat="goodsInformation in goodsInformations">
+                <img src="{{goodsInformation.TitlePicture}}">
+                <h2>{{goodsInformation.Title}}</h2>
+                <p>100</p>
+            </a>
+        </div>
+        <div class="onload-tip" ng-if="judgeTip">
+            <strong>sorry</strong>
+            <button ng-click="reOnload()">重新加载</button>
+        </div>
+        <ion-infinite-scroll ng-if="scollData.haveData" on-infinite="loadMore()" distance="1%"></ion-infinite-scroll>
     </ion-content>
 </ion-view>

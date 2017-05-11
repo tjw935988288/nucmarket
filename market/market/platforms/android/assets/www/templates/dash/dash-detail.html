@@ -1,21 +1,44 @@
 ﻿<ion-view view-title="商品详情">
-    <ion-content class="has-subheader">
-        <div class="list card">
+    <ion-content>
+        <div class="list card display">
 
-            <div class="item item-avatar">
+            <div class="item item-avatar item-button-right">
                 <img src="{{thing.face}}">
                 <h2>{{thing.id}}</h2>
+                <button class="button" style="top:20px">
+                    <i class="icon ion-ios-telephone"></i>
+                </button>
             </div>
 
-            <div class="item item-text-wrap">{{thing.name}}</div>
+            <div class="item item-button-right">
+                {{thing.name}}
+                <button ng-class="{collectButtonColor:notAdd}" class="button" ng-click="addCollection(thing.id)">
+                    <i>收藏</i>
+                </button>
+            </div>
 
-            <div class="item item-image" id="one">
+            <div class="item item-image" id="one" ng-show="display">
                 <img src="{{thing.face}}">
             </div>
 
-            <div class="item" id="more">
-                <ion-scroll direction="x" class="picture-project-scroll-container">
+            <div class="item picture-out-item" id="more" ng-hide="display">
+                <ion-scroll direction="x">
                     <div id="node_insert" class="all-project-scroll">
+                        <div class="picture-project-item">
+                            <img src="{{thing.face}}" class="img-scroll-item">
+                        </div>
+                        <div class="picture-project-item">
+                            <img src="{{thing.face}}" class="img-scroll-item">
+                        </div>
+                        <div class="picture-project-item">
+                            <img src="{{thing.face}}" class="img-scroll-item">
+                        </div>
+                        <div class="picture-project-item">
+                            <img src="{{thing.face}}" class="img-scroll-item">
+                        </div>
+                        <div class="picture-project-item">
+                            <img src="{{thing.face}}" class="img-scroll-item">
+                        </div>
                     </div>
                 </ion-scroll>
             </div>

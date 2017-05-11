@@ -1,4 +1,16 @@
+var _host = "http://59.48.248.41:1020/iNUC";
+var _url = _host + "/api/interface";
+var _token = _host + "/Token";
+
 angular.module('starter.services', [])
+
+.value('details',{
+    id: 1,
+    name: 'Ben Sparrow',
+    things: 'iphone',
+    lastText: 'You on your way?',
+    pictures: ['img/ben.png', 'img/max.png', 'img/mike.png', 'img/perry.png']
+})
 
 .factory('Chats', function() {
   // Might use a resource here that returns a JSON array
@@ -45,39 +57,358 @@ angular.module('starter.services', [])
         }
       }
       return null;
+    },
+    getBuyInfo: function ($http,$q) {
+        var deferred = $q.defer();
+        $http.get(_url + '/GetPictureNews?pageSize=5', {})
+        .success(function (data) {
+            deferred.resolve(data);
+        }).error(function (data) {
+            deferred.reject(data);
+        });
+        return deferred.promise;
     }
   };
 })
 
-.factory('Details', function () {
+.factory('Details', function ($http,$q) {
     var details = {
         id: 1,
         name: 'Ben Sparrow',
         things: 'iphone',
         lastText: 'You on your way?',
-        pictures: ['img/ben.png', 'img/max.png', 'img/mike.png', 'img/perry.png']
+        pictures: ['img/ben.png']
     };
+    var len = details.pictures.length;
+    var judge;
 
     return {
-        display: function () {
-            var len =  details.face.length;
+        len: function () {
+            return len;
+        },
+        hideOrShow: function () {
             if (len === 1) {
-                var more = document.getElementById("more");
-                more.style = "display:none";
+                judge = true;
             }
-            else {
-                var one = document.getElementById("one");
-                one.style = "display:none";
-                for (var i = 0 ; i < len; i++) {
-                    var div = document.createElement("div");
-                    div.class = "picture-project-item";
-                    var img = document.createElement("img");
-                    img.src = details.pictures[i];
-                    //img��class��ʽ��û�����ã�����Ҫ����
-                    div.appendChild(src);
-                    more.appendChild(div);
-                }
-            }
+            else judge = false;
+            return judge;
+        },
+        displayInScroll: function () {
+            for (var i = 0 ; i < len; i++) {
+                var div = document.createElement("div");
+                div.class = "picture-project-item";
+                var img = document.createElement("img");
+                img.src = "details.pictures[i]";
+                div.appendChild(src);
+                more.appendChild(div);
+            } 
+        },
+        collect: function (goodsId) {
+            var defered = $q.defer();
+            $http.post(_url + '/addCollection', { goodsId: goodsId })
+            .success(function (success) {
+                defered.resolve(success);
+            })
+            .error(function (error) {
+                defered.reject(error);
+            });
+            return defered.promise;
         }
     };
+})
+
+.factory('Messages', function ($http, $q) {
+    var messages = [{
+        id: 1,
+        name: "curry",
+        pic: "img/ben.png",
+        lastMessage: {
+            originalTime: "2015-11-26 5:22:55",
+            time: "",
+            timeFrome1970: 0,
+            content: "play basketball?",
+            isFromeMe: false
+        },
+        noReadMessages: 5,
+        showHints: true,
+        isTop: 0,
+        message: [{
+            isFromeMe: false,
+            content: "hello!",
+            time: "2015-11-22 08:50:22"
+        }, {
+            isFromeMe: true,
+            content: "hello,who are you?",
+            time: "2015-11-22 08:51:02"
+        }, {
+            isFromeMe: false,
+            content: "let's play basketball?",
+            time: "2015-11-26 5:22:55"
+        }]
+    }, {
+        id: 7,
+        name: "潘敏",
+        pic: "img/max.png",
+        lastMessage: {
+            originalTime: "2015-11-22 15:34:55",
+            time: "",
+            timeFrome1970: 0,
+            content: "我就在软件园?",
+            isFromeMe: false
+        },
+        noReadMessages: 0,
+        showHints: false,
+        isTop: 0,
+        message: [{
+            isFromeMe: false,
+            content: "你好!",
+            time: "2015-11-22 08:50:22"
+        }, {
+            isFromeMe: true,
+            content: "你好, 你是谁?",
+            time: "2015-11-22 08:51:02"
+        }, {
+            isFromeMe: false,
+            content: "我就在软件园?",
+            time: "2015-11-22 15:34:55"
+        }]
+    }, {
+        id: 2,
+        name: "王振启",
+        pic: "img/mike.png",
+        lastMessage: {
+            originalTime: "2015-11-21 15:34:55",
+            time: "",
+            timeFrome1970: 0,
+            content: "周末有什么安排?",
+            isFromeMe: false
+        },
+        noReadMessages: 20,
+        showHints: true,
+        isTop: 0
+    }, {
+        id: 6,
+        name: "mike",
+        pic: "img/perry.png",
+        lastMessage: {
+            originalTime: "2014-10-12 15:34:55",
+            time: "",
+            timeFrome1970: 0,
+            content: "ok",
+            isFromeMe: false
+        },
+        noReadMessages: 0,
+        showHints: false,
+        isTop: 0
+    }];
+
+    //var messages = [{
+    //    id: 0,
+    //    name: 'Ben Sparrow',
+    //    lastText: 'You on your way?',
+    //    face: 'img/ben.png'
+    //}, {
+    //    id: 1,
+    //    name: 'Max Lynx',
+    //    lastText: 'Hey, it\'s me',
+    //    face: 'img/max.png'
+    //}, {
+    //    id: 2,
+    //    name: 'Adam Bradleyson',
+    //    lastText: 'I should buy a boat',
+    //    face: 'img/adam.jpg'
+    //}, {
+    //    id: 3,
+    //    name: 'Perry Governor',
+    //    lastText: 'Look at my mukluks!',
+    //    face: 'img/perry.png'
+    //}, {
+    //    id: 4,
+    //    name: 'Mike Harrington',
+    //    lastText: 'This is wicked good ice cream.',
+    //    face: 'img/mike.png'
+    //}];
+    return {
+        all: function () {
+            return messages;
+        },
+        get: function (manyId) {
+            for (var i = 0; i < messages.length; i++) {
+                if (messages[i].id === parseInt(manyId)) {
+                    return messages[i];
+                }
+            }
+            return null;
+        },
+        getMessages: function (manyId) {
+            for (var i = 0; i < messages.length; i++) {
+                if (messages[i].id === parseInt(manyId)) {
+                    return messages[i].message;
+                }
+            }
+        },
+        sendMessage: function (userId,message) {
+            var defered = $q.defer();
+            var date = new Date(); //注意日期的格式问题
+            $http.post(_url + '/SendMessage?userId=' + userId + '&message=' + message + '&date=' + date+'&isFromMe=true', {})
+            .success(function (data) {
+                defered.resolve(data);
+            })
+            .error(function (data) {
+                defered.reject(data);
+            })
+        },
+        getMessage: function (userId, message, date) {
+            var defered = $q.defer();
+            $http.get(_url + '/GetMessage?userId=' + userId + '&message=' + message + '&date=' + date, {})
+            .success(function (data) {
+                defered.resolve(data);
+            })
+            .error(function (data) {
+                defered.reject(data);
+            })
+        }
+    };
+})
+
+.factory('Users', function ($http, $q) {
+    var storeToken = function (username, token, tags, personnelPicture) {
+        localStorage.setItem('username', username);
+        localStorage.setItem('tags', tags);
+        localStorage.setItem('token', token);
+        localStorage.setItem('personnelPicture', personnelPicture);
+    }
+    return {
+        //登陆时客户端向服务器发送一个post请求，请求中携带着用户名和密码,并请求服务器返回一个token，当用户名和密码验证成功后，就回在本地保存token，当用户请求数据时，把token发送出去，来验证用身份
+        //登陆其实就是请求服务器返回一个token
+        login: function (username, password) {
+            var deferred = $q.defer();
+            //$http返回一个promise对象
+            $http({
+                method: 'post', //method的值可以是get/delete/head/jsonp/post/put
+                url: _token, //绝对或相对的请求目标
+                data: "username=" + username + "&password=" + password + "&grant_type=password", //data的值包含了将会被当作消息体发送给服务器的对象，一般在post请求中使用
+                header: {'content-Type':'application/x-www-form-urlencoded'} //额外的请求头
+            })
+            .success(function (data) {
+                storeToken(username, data.access_token, data.Tags, data.personnelPicture);
+                deferred.resolve(name);
+            }).error(function (data) {
+                deferred.reject(data);
+            })
+            return deferred.promise;
+        }
+    }
+})
+
+.factory('GoodsInformations', function ($http,$q) {
+    return {
+        //getGoodsInformations: function () {
+        //    var deferred = $q.defer();
+        //    $http.get(_url + '/GetPictureNews?pageSize=5', {})
+        //    .success(function (data) {
+        //        deferred.resolve(data);
+        //    }).error(function (data) {
+        //        deferred.reject(data);
+        //    });
+        //    return deferred.promise;
+        //},
+        getGoodsInformations: function (pageIndex, pageSize) {
+            var deferred = $q.defer();
+            $http.get(_url + '/GetNews?pageIndex=' + pageIndex + "&pageSize=" + pageSize, {})
+            .success(function (data) {
+                deferred.resolve(data);
+            }).error(function (data) {
+                deferred.reject(data);
+            });
+            return deferred.promise;
+        },
+        publish: function (data) {
+
+        }
+    }
+})
+
+factory('Camera',function ($q) {
+    return {
+        //从本地或相机中获取图片
+        getPicture: function (type, width, height) {
+            //如果不设置照片的宽高，默认照片的宽高为800，600
+            if (!width) width = 800;
+            if (!height) height = 600;
+            var options;
+            //通过type来判断是拍照上传图片还是通过相册上传图片
+            if (type === 1) options = {
+                quality: 75,
+                sourceType: Camera.PictureSourceType.SAVEDPHOTOALBUM,
+                allowEdit: true,
+                targetWidth: width,
+                targetHeight: height,
+                saveToPhotoAlbum: true
+            };
+            else options = {
+                quality: 75,
+                sourceType: Camera.PictureSourceType.CAMERA,
+                allowEdit: true,
+                targetWidth: width,
+                targetHeight: height,
+                saveToPhotoAlbum: false
+            };
+            var q = $q.defer();
+            //navigator是cordova插件的一个对象，引入cordova插件后可以直接使用
+            navigator.camera.getPicture(function (result) {
+                q.resolve(result);
+            }, function (err) {
+                q.reject(err);
+            }, options);
+
+            return q.promise;
+        }
+    }
+})
+
+factory('GoodsInformation', function ($http,$q) {
+    return {
+        publish: function (data) {
+            //首先调用cordava的文件传输类
+            var fileTransfer = new FileTransfer();
+            var options = new FileUploadOptions();
+            options.fileKey = "file";
+            options.mimeType = "image/jpeg";
+            var targetPath = _host + '/File/UploadImage';
+
+            var defs = [];
+
+            var s = '';
+            //foreach函数第二个参数方法中的参数item存放第一个参数的值
+            angular.forEach(data.pic, function (item) {
+                if (item) {
+                    var deferred = $q.defer();
+                    options.fileName = item.substr(item.lastIndexOf('/') + 1);
+                    fileTransfer.upload(item, targetPath, function (success) {
+                        s += success.response.substring(2);
+                        deferred.resolve(success);
+                    }, function (error) {
+                        deferred.reject(error);
+                    }, options);
+                    defs.push(deferred.promise);
+                }
+            });
+
+            var deferred = $q.defer();
+            $q.all(defs).then(
+                function (success) {
+                    $http.post(_url + '/PublishNews', { title: data.title, contents: data.contents + s, picCode: '' })
+                    .success(function (success) {
+                        deferred.resolve(success);
+                    }).error(function (error) {
+                        deferred.reject(error);
+                    });
+                },
+                function (error) {
+                    deferred.reject(error);
+                });
+            return deferred.promise;
+        },
+    }
 })
