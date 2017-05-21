@@ -5,7 +5,33 @@ angular.module('starter.controllers', [])
     $scope.things = Chats.all();
 })
 
-.controller('DashDetailCtrl', function ($scope, $stateParams, Chats, Details,$ionicPopup) {
+.controller('DashDetailCtrl', function ($scope, $stateParams, Chats, Details, $ionicPopup, Users,$state,GoodsInformations) {
+    //var confirmPopup = $ionicPopup.confirm({
+    //        title: '中北市场',
+    //        template: '是否发布商品信息?',
+    //        okText: '确定',
+    //        cancelText: '取消'
+    if (Users.checkLogin() == false) {
+        $state.go('login');
+    }
+    $scope.canBuy = false;
+    //GoodsInformations.getGoodsDetail($stateParams.goodsId)
+    //.then(function(data){
+    //    $scope.goodsDetail = data;
+    //    if (Users.getUserName() == data.publishId) {
+    //        $canBuy = true;
+    //    }
+    //}, function () {
+    //    console.log('加载失败');
+    //})
+    $scope.buying = function () {
+        var confirmPopup = $ionicPopup.confirm({
+            title: '中北市场',
+            template: '确认购买商品并且和卖家联系?',
+            okText: '确定',
+            cancelText: '取消'
+        })
+    };
     $scope.thing = Chats.get($stateParams.thingId);
     $scope.display = Details.hideOrShow();
     //使用$on监听事件的刚加载执行的方法
@@ -136,8 +162,29 @@ angular.module('starter.controllers', [])
     });
 })
 
-.controller('DashSportsCtrl', function ($scope) {
-    
+.controller('DashSportsCtrl', function ($scope, GoodsInformations, $ionicLoading) {
+    $scope.scollData = { currentPageIndex: 1, haveData: true, pageLoading: true };
+    GoodsInformations.getGoodsInformations('','',$scope.scollData.currentPageIndex, 10).then(function (data) {
+
+        //if (data == null) {
+        //    $state.go("tab.news-unsucess");
+        //}
+        $scope.goodsInformations = data;
+        $scope.scollData.pageLoading = false;
+        $scope.judgeOnload = true;
+        $scope.judgeTip = false;
+        $ionicLoading.hide();
+        console.log(data);
+        //$timeout(function () {
+        //    ionicMaterialMotion.fadeSlideIn({
+        //        selector: '.animate-fade-slide-in .item'
+        //    });
+        //}, 200);
+    }, function () {
+        $scope.judgeOnload = false;
+        $scope.judgeTip = true;
+        $ionicLoading.hide();
+    });
 })
 
 .controller('DashPlayCtrl', function ($scope) {
@@ -145,11 +192,16 @@ angular.module('starter.controllers', [])
 })
 
 .controller('DashIonicCtrl', function ($scope) {
-    
 })
 
-.controller('PersonalCtrl', function ($scope, $ionicPopover) {
-    $scope.judge = true;
+.controller('PersonalCtrl', function ($scope, $ionicPopover, Users,$interval) {
+    //$scope.judge = Users.checkLogin();
+    $interval(function () {
+        $scope.judge = Users.checkLogin();
+        $scope.username = Users.getUserName();
+        if (Users.getPicture() != null) $scope.picture = Users.getPicture(); else $scope.picture = '/img/ionic.png';
+        $scope.discribe = '这个家伙很懒，什么也没留下';
+    },100);
     $ionicPopover.fromTemplateUrl('/templates/personal/loginRegistPopover.html', {
         scope: $scope
     }).then(function (popover) {
@@ -166,11 +218,80 @@ angular.module('starter.controllers', [])
     })
 })
 
+.controller('SetCtrl', function ($scope, Users, $state) {
+    $scope.logOut = function () {
+        Users.logOut();
+        $state.go('tab.personal');
+    }
+})
+
+.controller('RegistCtrl', function ($scope, $interval, $ionicLoading, $state) {
+    $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
+        viewData.enableBack = true;
+    });
+    $scope.loginData = { sex: '男' };
+    $scope.controlCodeButtonData = { enable: true, start: 0, text: 0 };
+
+    $scope.getCode = function () {
+        $scope.controlCodeButtonData.enable = false;
+        $scope.controlCodeButtonData.start = new Date();
+        var timeI = $interval(function () {
+            var t = new Date();
+            var s = t - $scope.controlCodeButtonData.start;
+            var d = parseInt(s / 1000);
+            if (d >= 60) {
+                $scope.controlCodeButtonData.enable = true;
+                $interval.cancel(timeI);
+            }
+            $scope.controlCodeButtonData.text = '60秒后重试(' + d + ')';
+        }, 500);
+        Users.getVerificationCode($scope.loginData.username).then(
+            function (data) {
+                if (!data) {
+                    alert('发送验证码失败，请确认手机号未注册');
+                    $scope.controlCodeButtonData.enable = true;
+                    $interval.cancel(timeI);
+                    return;
+                }
+            }
+            );
+    };
+
+    $scope.doRegister = function () {
+        if ($scope.loginData.password !== $scope.loginData.confirm) {
+            alert('密码和验证码不匹配');
+            return;
+        }
+        $ionicLoading.show();
+        Users.register($scope.loginData.username, $scope.loginData.password, $scope.loginData.code, $scope.loginData.nickname, $scope.loginData.sex)
+            .then(function (data) {
+                if (data) alert(data);
+                else {
+                    Users.login($scope.loginData.username, $scope.loginData.password)
+                    .then(function (data) {
+                        $ionicLoading.hide();
+                        $state.go('tab.set');
+                    });
+                }
+            });
+    };
+})
+
 //$scope对象的属性名不能为messages,angularjs不仅模块之间存在依赖关系，模块与模块之下的服务也存在依赖关系，类似于一个树型结构，父模块是根，之后是子模块，之后是子模块之下的服务
 //所以存在模块层级和服务层级两个级别，兄弟模块的服务互相可见，所以兄弟服务的变量也相互可见，在Messages服务中创建了一个变量messages，在MessageListCtrl中引入Messages服务，
 //则对messages变量MessageListCtrl是可见的。所以$scope中的属性不能命名为messages。
-.controller('MessageListCtrl', function ($scope, Messages, $ionicPopup) {
+.controller('MessageListCtrl', function ($scope,Messages, $ionicPopup) {
     $scope.manys = Messages.all();
+    //$scope.username = 'anonymous';
+    //$scope.Messages = Messages;
+    //$scope.submit = function (new_message) {
+    //    if (!new_message) { return; }
+    //    Messages.send({
+    //        username: $scope.username,
+    //        message: new_message
+    //    });
+    //    $scope.new_message = '';
+    //};
     $scope.popupMessageOpthins = function (many) {
         //$scope.popup.index = $scope.messages.indexOf(many);
         $scope.popup.optionsPopup = $ionicPopup.show({
@@ -181,12 +302,16 @@ angular.module('starter.controllers', [])
     };
 })
 
-.controller('PublishCtrl', function ($scope, Camera) {
+.controller('PublishCtrl', function ($scope, Camera,$ionicPopup,$ionicLoading,GoodsInformation) {
     //$scope.restNumber = 140 - $scope.number.length;
     $scope.surplus = function () {
         return 140 - $scope.data.content.length;
     };
-    $scope.data = { title: '', contents: '',price:'', pic: ['', '', '', '', ''],classify:'' };
+    $scope.showError = function (ngModelController, error) {
+        return ngModelController.$error[error];
+    }
+
+    $scope.data = { title: '', description: '',price:'', pic: ['', '', ''],labels:'' };
     //getPicture函数只能一张一张的上传
     $scope.getPicture = function (id, type) {
         Camera.getPicture(type).then(function (imageURI) {
@@ -195,53 +320,53 @@ angular.module('starter.controllers', [])
             console.log(error);
         });
     };
-    //$scope.publish = function () {
-    //    var checkTitle = $scope.data.title != '';
-    //    var checkContents = $scope.data.contents != '';
-    //    var checkPic = false;
-    //    //如果检测到有图片上传成功，将checkPic设置为true
-    //    angular.forEach($scope.data.pic, function (item) { if (item != '') checkPic = true; });
-    //    //最终的检查结果是上传图片或者内容并且上传标题
-    //    var checked = checkTitle && (checkPic || checkContents);
+    $scope.publish = function () {
+        var checkTitle = $scope.data.title != '';
+        var checkContents = $scope.data.contents != '';
+        var checkPic = false;
+        //如果检测到有图片上传成功，将checkPic设置为true
+        angular.forEach($scope.data.pic, function (item) { if (item != '') checkPic = true; });
+        //最终的检查结果是上传图片或者内容并且上传标题
+        var checked = checkTitle && checkPic && checkContents;
 
-    //    if (!checked) {
-    //        $ionicPopup.alert({
-    //            title: 'iNUC 爱中北',
-    //            template: "新闻标题和内容必须输入！"
-    //        }).then(function (res) {
-    //            return;
-    //        });
-    //    } else {
-    //        var confirmPopup = $ionicPopup.confirm({
-    //            title: '<strong>iNUC 爱中北</strong>',
-    //            template: '是否确定发布新闻?',
-    //            okText: '确定',
-    //            cancelText: '取消'
-    //        });
-	//		//then方法的第一个参数只要弹出框关闭就执行，res参数是弹出框中的输入值
-    //        confirmPopup.then(function (res) {
-    //            if (res) {
-    //                $ionicLoading.show();
-    //                //这里函数是检测数据是否上传成功
-    //                GoodsInformation.publish($scope.data).then(
-    //                    function () {
-    //                        $ionicLoading.hide();
-    //                        $ionicPopup.alert({
-    //                            title: 'iNUC 爱中北',
-    //                            template: "新闻发布成功，请等待审核！"
-    //                        });
-    //                        $state.go('tab.news', {}, { reload: true });
-    //                    }, function () {
-    //                        $ionicLoading.hide();
-    //                        $ionicPopup.alert({
-    //                            title: 'iNUC 爱中北',
-    //                            template: "新闻发布失败，请重新上传！"
-    //                        });
-    //                    });
-    //            }
-    //        });
-    //    }
-    //}
+        if (!checked) {
+            $ionicPopup.alert({
+                title: '中北市场',
+                template: "请上传一张图片！"
+            }).then(function (res) {
+                return;
+            });
+        } else {
+            var confirmPopup = $ionicPopup.confirm({
+                title: '中北市场',
+                template: '是否发布商品信息?',
+                okText: '确定',
+                cancelText: '取消'
+            });
+			//then方法的第一个参数只要弹出框关闭就执行，res参数是弹出框中的输入值
+            confirmPopup.then(function (res) {
+                if (res) {
+                    $ionicLoading.show();
+                    //这里函数是检测数据是否上传成功
+                    GoodsInformation.publish($scope.data).then(
+                        function () {
+                            $ionicLoading.hide();
+                            $ionicPopup.alert({
+                                title: '中北市场',
+                                template: "商品发布成功！"
+                            });
+                            $state.go('tab.dash', {}, { reload: true });
+                        }, function () {
+                            $ionicLoading.hide();
+                            $ionicPopup.alert({
+                                title: '中北市场',
+                                template: "商品发布失败，请检查重新发布！"
+                            });
+                        });
+                }
+            });
+        }
+    }
 })
 
 .controller('ChatsCtrl', function ($scope, Chats) {
@@ -290,7 +415,10 @@ angular.module('starter.controllers', [])
     //}
 })
 
-.controller('LoginCtrl', function ($scope, Users, $ionicHistory, $state, $stateParams, $ionicLoading) {
+.controller('LoginCtrl', function ($scope, Users, $ionicHistory, $state, $stateParams, $ionicLoading, Messages) {
+    $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
+        viewData.enableBack = true;
+    });
     $scope.loginData = {};
     $scope.doLogin = function () {
         $ionicLoading.show();
@@ -298,16 +426,79 @@ angular.module('starter.controllers', [])
         Users.login($scope.loginData.username, $scope.loginData.password)
         .then(function (data) {
             $ionicLoading.hide();
-            console.log(data);
-            if ($ionicHistory.backView()) {
-                $ionicHistory.goBack();
-            } else {
-                $state.go('tab.personal');
-            }
+            console.log('success');
+            //if ($ionicHistory.backView()) {
+            //    $ionicHistory.goBack();
+            //} else {
+            //    $state.go('tab.personal');
+            //}
+            $state.go('tab.personal');
+            //Messages.initLink();
         }, function () {
             //navigator.notification.alert('您输入的用户名和密码不正确', function () { }, '登陆', '重新输入');
             console.log('error');
             $ionicLoading.hide();
         });
     }
-});
+})
+
+.controller('RegistCtrl', function ($scope, Users, $interval, $ionicLoading,$state) {
+    $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
+        viewData.enableBack = true;
+    });
+    $scope.showError = function (ngModelController, error) {
+        return ngModelController.$error[error];
+    }
+
+    $scope.loginData = { sex: '男' };
+    $scope.controlCodeButtonData = { enable: true, start: 0, text: 0 };
+
+    $scope.getCode = function () {
+        $scope.controlCodeButtonData.enable = false;
+        $scope.controlCodeButtonData.start = new Date();
+        //每隔500毫秒计算一下从点击到现在的时间，如果大于60秒，则退出循环。
+        var timeI = $interval(function () {
+            var t = new Date();
+            var s = t - $scope.controlCodeButtonData.start;
+            var d = parseInt(s / 1000);
+            if (d >= 60) {
+                $scope.controlCodeButtonData.enable = true;
+                $interval.cancel(timeI);
+            }
+            $scope.controlCodeButtonData.text = '60秒后重试(' + d + ')';
+        }, 500);
+        Users.getVerificationCode($scope.loginData.username).then(
+            function (data) {
+                if (!data) {
+                    alert('发送验证码失败，请确认手机号未注册');
+                    $scope.controlCodeButtonData.enable = true;
+                    $interval.cancel(timeI);
+                    return;
+                }
+            }
+            );
+    };
+
+    $scope.doRegister = function () {
+        if ($scope.loginData.password !== $scope.loginData.confirm) {
+            alert('密码和验证码不匹配');
+            return;
+        }
+        $ionicLoading.show();
+        Users.register($scope.loginData.username, $scope.loginData.password, $scope.loginData.code, $scope.loginData.nickname, $scope.loginData.sex)
+            .then(function (data) {
+                if (data) alert(data);
+                else {
+                    Users.login($scope.loginData.username, $scope.loginData.password)
+                    .then(function (data) {
+                        $ionicLoading.hide();
+                        $state.go('login');
+                    });
+                }
+            }, function () {
+                $ionicLoading.hide();
+            });
+    };
+})
+
+.controller('AlterPersonalCtrl', function () { })

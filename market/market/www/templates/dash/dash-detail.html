@@ -44,7 +44,11 @@
             </div>
 
             <div class="item item-text-wrap">{{thing.lastText}}</div>
-            <div class="item item-text-wrap">100</div>
+            <div class="item item-button-right">100
+                <button class="button button-positive" ng-click="buying()" ng-disabled="canBuy">
+                    <i>购买</i>
+                </button>
+            </div>
         </div>
         <div class="padding-horizontal" style="float:right">2017</div>
     </ion-content>

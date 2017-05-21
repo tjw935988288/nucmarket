@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
-      <meta http-equiv="Content-Security-Policy" content="default-src http://59.48.248.41:1020 http://www.i-nuc.com http://oa.nuc.edu.cn:8018 https://codepush.azurewebsites.net 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *" />
+    <meta http-equiv="Content-Security-Policy" content="default-src http://59.48.248.41:1020 http://www.i-nuc.com http://oa.nuc.edu.cn:8018 https://codepush.azurewebsites.net 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *" />
     <title></title>
 
     <link href="lib/ionic/css/ionic.css" rel="stylesheet">
@@ -22,6 +22,7 @@
 
     <!-- cordova script (this will be a 404 during development) -->
     <script src="cordova.js"></script>
+    <script src="js/angular-websocket.js"></script>
 
     <!-- your app's js -->
     <script src="js/app.js"></script>
@@ -30,11 +31,11 @@
     <script src="/lib/angular.min.js"></script>
     <script src="/lib/elastic.js"></script>
   </head>
-  <body ng-app="starter">
+  <body ng-app="starter" class="platform-android platform-cordova platform-webview">
     <!--
       The nav bar that will be updated as we navigate between views.
     -->
-    <ion-nav-bar class="bar-stable">
+    <ion-nav-bar class="bar-stable bar-positive">
       <ion-nav-back-button>
       </ion-nav-back-button>
     </ion-nav-bar>

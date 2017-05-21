@@ -6,7 +6,7 @@ navigation history that also transitions its views in and out.
 <ion-tabs class="tabs-icon-top tabs-color-active-positive">
 
   <!-- Dashboard Tab -->
-  <ion-tab title="goods" icon-off="ion-ios-pulse" icon-on="ion-ios-pulse-strong" href="#/tab/dash">
+  <ion-tab title="goods" icon-off="ion-ios-cart-outline" icon-on="ion-ios-cart" href="#/tab/dash">
     <div class="bar bar-subheader">
           <ion-scroll direction="x" class="home-project-scroll-container">
               <div class="all-project-scroll">
@@ -34,17 +34,16 @@ navigation history that also transitions its views in and out.
   </ion-tab>
 
   <!-- Chats Tab -->
-  <ion-tab title="Publish" icon-off="ion-ios-chatboxes-outline" icon-on="ion-ios-chatboxes" href="#/tab/publish">
+  <ion-tab title="Publish" icon-off="ion-ios-upload-outline" icon-on="ion-ios-upload" href="#/tab/publish">
     <ion-nav-view name="tab-publish"></ion-nav-view>
   </ion-tab>
 
+    <ion-tab title="message" icon-off="ion-ios-chatboxes-outline" icon-on="ion-ios-chatboxes" href="#/tab/message">
+        <ion-nav-view name="tab-message"></ion-nav-view>
+    </ion-tab>
+
   <!-- Account Tab -->
-  <ion-tab title="Personal" icon-off="ion-ios-gear-outline" icon-on="ion-ios-gear" href="#/tab/personal">
+  <ion-tab title="Personal" icon-off="ion-ios-person-outline" icon-on="ion-ios-person" href="#/tab/personal">
     <ion-nav-view name="tab-personal"></ion-nav-view>
   </ion-tab>
-
-  <ion-tab title="message" icon-off="ion-ios-gear-outline" icon-on="ion-ios-gear" href="#/tab/message">
-      <ion-nav-view name="tab-message"></ion-nav-view>
-  </ion-tab>
-
 </ion-tabs>

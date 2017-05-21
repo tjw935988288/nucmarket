@@ -267,6 +267,16 @@ angular.module('starter.services', [])
             .error(function (data) {
                 defered.reject(data);
             })
+        },
+        //先建立服务器连接,当用户点击聊天对象头像时，获取该用户的ID，并建立与该用户的连接
+        initLink: function () {
+            var ws = new WebSocket('ws://localhost:8181');
+            ws.onopen = function (event) {
+                console.log('connnect success');
+            }
+            ws.onmessage = function (event) {
+                var data = JSON.parse(event.data);
+            }
         }
     };
 })
@@ -288,7 +298,7 @@ angular.module('starter.services', [])
                 method: 'post', //method的值可以是get/delete/head/jsonp/post/put
                 url: _token, //绝对或相对的请求目标
                 data: "username=" + username + "&password=" + password + "&grant_type=password", //data的值包含了将会被当作消息体发送给服务器的对象，一般在post请求中使用
-                header: {'content-Type':'application/x-www-form-urlencoded'} //额外的请求头
+                headers: {'content-Type':'application/x-www-form-urlencoded'} //额外的请求头
             })
             .success(function (data) {
                 storeToken(username, data.access_token, data.Tags, data.personnelPicture);
@@ -297,22 +307,60 @@ angular.module('starter.services', [])
                 deferred.reject(data);
             })
             return deferred.promise;
-        }
+        },
+
+        checkLogin: function () {
+            if (localStorage.getItem('username') != null) { return true };
+            return false;
+        },
+
+        getUserName: function () {
+            return localStorage.getItem('username');
+        },
+
+        getPicture: function () {
+            return localStorage.getItem('personnelPicture');
+        },
+
+        logOut: function () {
+            localStorage.clear();
+        },
+
+        register: function (username, password, code, nickname, sex) {
+            var deferred = $q.defer();
+            $http.post(_url + '/CreateUser', { mobilephone: username, password: password, code: code, nickname: nickname, sex: sex })
+            .success(function (data) {
+                deferred.resolve(data);
+            }).error(function (data) {
+                deferred.reject(data);
+            });
+            return deferred.promise;
+        },
+        getVerificationCode: function (username) {
+            var deferred = $q.defer();
+            $http.post(_url + '/GetVerificationCode', { mobilephone: username })
+            .success(function (data) {
+                deferred.resolve(data);
+            }).error(function (data) {
+                deferred.reject(data);
+            });
+            return deferred.promise;
+        },
     }
 })
 
 .factory('GoodsInformations', function ($http,$q) {
     return {
-        //getGoodsInformations: function () {
-        //    var deferred = $q.defer();
-        //    $http.get(_url + '/GetPictureNews?pageSize=5', {})
-        //    .success(function (data) {
-        //        deferred.resolve(data);
-        //    }).error(function (data) {
-        //        deferred.reject(data);
-        //    });
-        //    return deferred.promise;
-        //},
+        getGoodsInformations: function () {
+            var deferred = $q.defer();
+            $http.get(_url + '/GetPictureNews?pageSize=5', {})
+            .success(function (data) {
+                deferred.resolve(data);
+            }).error(function (data) {
+                deferred.reject(data);
+            });
+            return deferred.promise;
+        },
         getGoodsInformations: function (pageIndex, pageSize) {
             var deferred = $q.defer();
             $http.get(_url + '/GetNews?pageIndex=' + pageIndex + "&pageSize=" + pageSize, {})
@@ -321,15 +369,74 @@ angular.module('starter.services', [])
             }).error(function (data) {
                 deferred.reject(data);
             });
+            //promise = $q.when(config);
+            return deferred.promise;
+        },
+        //getGoodsInformations: function (label,title, pageIndex, pageSize) {
+        //    var deferred = $q.defer();
+        //    $http.get(_url + '/GetCommodities?label='+label+'&title='+titile+'pageIndex=' + pageIndex + "&pageSize=" + pageSize, {})
+        //    .success(function (data) {
+        //        deferred.resolve(data);
+        //    }).error(function (data) {
+        //        deferred.reject(data);
+        //    });
+        //    //promise = $q.when(config);
+        //    return deferred.promise;
+        //},
+        getGoodsDetail:function(goodsId){
+            var deferred = $q.defer();
+            $http.get(_url + 'GetCommodity?id=' + goodsId)
+            .success(function (data) {
+                deferred.resolve(data);
+            }).error(function (data) {
+                deferred.reject(data);
+            });
             return deferred.promise;
         },
         publish: function (data) {
+            var fileTransfer = new FileTransfer();
+            var options = new FileUploadOptions();
+            options.fileKey = "file";
+            options.mimeType = "image/jpeg";
+            var targetPath = _host + '/File/UploadImage';
 
+            var defs = [];
+
+            var s = '';
+            angular.forEach(data.pic, function (item) {
+                if (item) {
+                    var deferred = $q.defer();
+                    options.fileName = item.substr(item.lastIndexOf('/') + 1);
+                    fileTransfer.upload(item, targetPath, function (success) {
+                        s += success.response.substring(2);
+                        deferred.resolve(success);
+                    }, function (error) {
+                        deferred.reject(error);
+                    }, options);
+                    defs.push(deferred.promise);
+                }
+            });
+
+            var deferred = $q.defer();
+            $q.all(defs).then(
+                function (success) {
+                    $http.post(_url + '/PublishNews', { title: data.title, contents: data.contents + s, picCode: '' })
+                    .success(function (success) {
+                        deferred.resolve(success);
+                    }).error(function (error) {
+                        deferred.reject(error);
+                    });
+                },
+                function (error) {
+                    deferred.reject(error);
+                });
+            return deferred.promise;
+        }
         }
     }
-})
+)
 
-factory('Camera',function ($q) {
+.factory('Camera',function ($q) {
     return {
         //从本地或相机中获取图片
         getPicture: function (type, width, height) {
@@ -367,7 +474,7 @@ factory('Camera',function ($q) {
     }
 })
 
-factory('GoodsInformation', function ($http,$q) {
+.factory('GoodsInformation', function ($http,$q) {
     return {
         publish: function (data) {
             //首先调用cordava的文件传输类
@@ -398,7 +505,7 @@ factory('GoodsInformation', function ($http,$q) {
             var deferred = $q.defer();
             $q.all(defs).then(
                 function (success) {
-                    $http.post(_url + '/PublishNews', { title: data.title, contents: data.contents + s, picCode: '' })
+                    $http.post(_url + '/PublishCommodity', { Title: data.title, Description: data.description + s, Price: data.price, Contact: '', Picture: '', PicCode: '', Labels: 'data.labels', Newness: '', MaxCount: '', Place: '', TradeEndTime: '' })
                     .success(function (success) {
                         deferred.resolve(success);
                     }).error(function (error) {
@@ -412,3 +519,59 @@ factory('GoodsInformation', function ($http,$q) {
         },
     }
 })
+
+//.factory('Messages', function ($websocket) {
+//    //建立webSocket连接，定义collection变量存放消息数据。
+//    var ws = $websocket('ws://echo.websocket.org/');
+//    var collection = [];
+
+//    ws.onMessage(function (event) {
+//        console.log('message: ', event);
+//        var res;
+//        try {
+//            res = JSON.parse(event.data);
+//        } catch (e) {
+//            res = { 'username': 'anonymous', 'message': event.data };
+//        }
+
+//        collection.push({
+//            username: res.username,
+//            content: res.message,
+//            timeStamp: event.timeStamp
+//        });
+//    });
+
+//    ws.onError(function (event) {
+//        console.log('connection Error', event);
+//    });
+
+//    ws.onClose(function (event) {
+//        console.log('connection closed', event);
+//    });
+
+//    ws.onOpen(function () {
+//        console.log('connection open');
+//        ws.send('Hello World');
+//        ws.send('again');
+//        ws.send('and again');
+//    });
+//    // setTimeout(function() {
+//    //   ws.close();
+//    // }, 500)
+
+//    return {
+//        collection: collection,
+//        status: function () {
+//            return ws.readyState;
+//        },
+//        send: function (message) {
+//            if (angular.isString(message)) {
+//                ws.send(message);
+//            }
+//            else if (angular.isObject(message)) {
+//                ws.send(JSON.stringify(message));
+//            }
+//        }
+
+//    };
+//})
