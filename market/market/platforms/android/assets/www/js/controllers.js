@@ -5,7 +5,7 @@ angular.module('starter.controllers', [])
     $scope.things = Chats.all();
 })
 
-.controller('DashDetailCtrl', function ($scope, $stateParams, Chats, Details, $ionicPopup, Users,$state,GoodsInformations) {
+.controller('DashDetailCtrl', function ($scope, $stateParams, Chats, Details, $ionicPopup, Users, $state, GoodsInformations, Talkings, $ionicLoading) {
     //var confirmPopup = $ionicPopup.confirm({
     //        title: '中北市场',
     //        template: '是否发布商品信息?',
@@ -15,6 +15,17 @@ angular.module('starter.controllers', [])
         $state.go('login');
     }
     $scope.canBuy = false;
+    var maxNo = 15;
+    //$ionicLoading.show();
+    $scope.scollData = { currentPageIndex: 1, haveData: false, pageLoading: true };
+    //Talkings.getTalkings($scope.scollData.currentPageIndex, maxNo).then(function (data) {
+    //    angular.forEach(data, function (item) {
+    //        item.Contents = $sce.trustAsHtml(item.Contents);//$sce服务告诉系统这个HTML是可以信任的
+    //    })
+    //    $scope.data = data;
+    //    $scope.scollData.pageLoading = false;
+    //    $ionicLoading.hide();
+    //});
     //GoodsInformations.getGoodsDetail($stateParams.goodsId)
     //.then(function(data){
     //    $scope.goodsDetail = data;
@@ -50,6 +61,48 @@ angular.module('starter.controllers', [])
                 title: '<strong>please check internet</strong>'
             });
         })
+    }
+    $scope.doRemark = function (id) {
+        $scope.remarks = {};
+        var confirmPopup = $ionicPopup.prompt({
+            title: '<strong>中北市场</strong>',
+            template: '<textarea style="width: 95%; height: 100px;" ng-model="remarks.response"></textarea>',
+            inputPlaceholder: '评论...',
+            buttons: [{
+                text: '取消',
+                type: 'button-default',
+                onTap: function (e) {
+                    $scope.remarks.response = null;
+                }
+            }, {
+                text: '提交',
+                type: 'button-positive',
+                onTap: function (e) {
+                    if (!$scope.remarks.response) e.preventDefault();
+                    else return $scope.remarks.response;
+                }
+            }],
+            scope: $scope
+        });
+
+        confirmPopup.then(function (res) {
+            if (!$scope.remarks.response) return;
+
+            Talkings.remark(id, $scope.remarks.response, '').then(
+                        function () {
+                            //$ionicPopup.alert({
+                            //    title: 'iNUC 爱中北',
+                            //    template: "评论成功"
+                            //});
+                            //$state.go('tab.talkings');
+                            $scope.doRefresh();//评论完自动刷新
+                        }, function () {
+                            $ionicPopup.alert({
+                                title: '中北市场',
+                                template: "评论失败，请重新上传！"
+                            });
+                        });
+        });
     }
 })
 
@@ -200,7 +253,7 @@ angular.module('starter.controllers', [])
         $scope.judge = Users.checkLogin();
         $scope.username = Users.getUserName();
         if (Users.getPicture() != null) $scope.picture = Users.getPicture(); else $scope.picture = '/img/ionic.png';
-        $scope.discribe = '这个家伙很懒，什么也没留下';
+        $scope.discribe = '这个家伙很懒，没有个人介绍';
     },100);
     $ionicPopover.fromTemplateUrl('/templates/personal/loginRegistPopover.html', {
         scope: $scope
@@ -302,16 +355,19 @@ angular.module('starter.controllers', [])
     };
 })
 
-.controller('PublishCtrl', function ($scope, Camera,$ionicPopup,$ionicLoading,GoodsInformation) {
+.controller('PublishCtrl', function ($scope, Camera,$ionicPopup,$ionicLoading,GoodsInformations,Users) {
     //$scope.restNumber = 140 - $scope.number.length;
-    $scope.surplus = function () {
-        return 140 - $scope.data.content.length;
-    };
+    //$scope.$apply(
+    //    $scope.surplus = function () {
+    //        return 140 - $scope.data.description.length;
+    //    }
+    //)
     $scope.showError = function (ngModelController, error) {
         return ngModelController.$error[error];
     }
-
-    $scope.data = { title: '', description: '',price:'', pic: ['', '', ''],labels:'' };
+    var now = new Date();
+    var tradeEndTime = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+    $scope.data = { title: '', description: '', price: '', contact: Users.getUserName(), pic: ['', '', ''], labels: '', tradeEndTime: tradeEndTime };
     //getPicture函数只能一张一张的上传
     $scope.getPicture = function (id, type) {
         Camera.getPicture(type).then(function (imageURI) {
@@ -321,13 +377,11 @@ angular.module('starter.controllers', [])
         });
     };
     $scope.publish = function () {
-        var checkTitle = $scope.data.title != '';
-        var checkContents = $scope.data.contents != '';
         var checkPic = false;
         //如果检测到有图片上传成功，将checkPic设置为true
         angular.forEach($scope.data.pic, function (item) { if (item != '') checkPic = true; });
         //最终的检查结果是上传图片或者内容并且上传标题
-        var checked = checkTitle && checkPic && checkContents;
+        var checked = true ;
 
         if (!checked) {
             $ionicPopup.alert({
@@ -348,7 +402,7 @@ angular.module('starter.controllers', [])
                 if (res) {
                     $ionicLoading.show();
                     //这里函数是检测数据是否上传成功
-                    GoodsInformation.publish($scope.data).then(
+                    GoodsInformations.publish($scope.data).then(
                         function () {
                             $ionicLoading.hide();
                             $ionicPopup.alert({

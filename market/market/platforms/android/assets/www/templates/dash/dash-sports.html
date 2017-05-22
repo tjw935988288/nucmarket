@@ -7,7 +7,7 @@
         <ion-refresher pulling-text="放手后刷新" pulling-icon="ios-aperture-outline" refreshing-text="刷新成功" refreshing-icon="ios-aperture" on-refresh="doRefresh()"></ion-refresher>
         <div class="list" ng-if="judgeOnload">
             <a class="item item-thumbnail-left" ng-repeat="goodsInformation in goodsInformations">
-                <img src="{{goodsInformation.TitlePicture}}">
+                <img src="{{goodsInformation.Picture}}">
                 <h2>{{goodsInformation.Title}}</h2>
                 <p>100</p>
             </a>

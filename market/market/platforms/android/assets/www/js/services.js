@@ -361,20 +361,9 @@ angular.module('starter.services', [])
             });
             return deferred.promise;
         },
-        getGoodsInformations: function (pageIndex, pageSize) {
-            var deferred = $q.defer();
-            $http.get(_url + '/GetNews?pageIndex=' + pageIndex + "&pageSize=" + pageSize, {})
-            .success(function (data) {
-                deferred.resolve(data);
-            }).error(function (data) {
-                deferred.reject(data);
-            });
-            //promise = $q.when(config);
-            return deferred.promise;
-        },
-        //getGoodsInformations: function (label,title, pageIndex, pageSize) {
+        //getGoodsInformations: function (pageIndex, pageSize) {
         //    var deferred = $q.defer();
-        //    $http.get(_url + '/GetCommodities?label='+label+'&title='+titile+'pageIndex=' + pageIndex + "&pageSize=" + pageSize, {})
+        //    $http.get(_url + '/GetNews?pageIndex=' + pageIndex + "&pageSize=" + pageSize, {})
         //    .success(function (data) {
         //        deferred.resolve(data);
         //    }).error(function (data) {
@@ -383,6 +372,17 @@ angular.module('starter.services', [])
         //    //promise = $q.when(config);
         //    return deferred.promise;
         //},
+        getGoodsInformations: function (label,title, pageIndex, pageSize) {
+            var deferred = $q.defer();
+            $http.get(_url + '/GetCommodities?label=&title=&pageIndex='+pageIndex+'&pageSize='+pageSize, {})
+            .success(function (data) {
+                deferred.resolve(data);
+            }).error(function (data) {
+                deferred.reject(data);
+            });
+            //promise = $q.when(config);
+            return deferred.promise;
+        },
         getGoodsDetail:function(goodsId){
             var deferred = $q.defer();
             $http.get(_url + 'GetCommodity?id=' + goodsId)
@@ -393,6 +393,45 @@ angular.module('starter.services', [])
             });
             return deferred.promise;
         },
+        //publish: function (data) {
+        //    var fileTransfer = new FileTransfer();
+        //    var options = new FileUploadOptions();
+        //    options.fileKey = "file";
+        //    options.mimeType = "image/jpeg";
+        //    var targetPath = _host + '/File/UploadImage';
+
+        //    var defs = [];
+
+        //    var s = '';
+        //    angular.forEach(data.pic, function (item) {
+        //        if (item) {
+        //            var deferred = $q.defer();
+        //            options.fileName = item.substr(item.lastIndexOf('/') + 1);
+        //            fileTransfer.upload(item, targetPath, function (success) {
+        //                s += success.response.substring(2);
+        //                deferred.resolve(success);
+        //            }, function (error) {
+        //                deferred.reject(error);
+        //            }, options);
+        //            defs.push(deferred.promise);
+        //        }
+        //    });
+
+        //    var deferred = $q.defer();
+        //    $q.all(defs).then(
+        //        function (success) {
+        //            $http.post(_url + '/PublishNews', { title: data.title, contents: data.contents + s, picCode: '' })
+        //            .success(function (success) {
+        //                deferred.resolve(success);
+        //            }).error(function (error) {
+        //                deferred.reject(error);
+        //            });
+        //        },
+        //        function (error) {
+        //            deferred.reject(error);
+        //        });
+        //    return deferred.promise;
+        //}
         publish: function (data) {
             var fileTransfer = new FileTransfer();
             var options = new FileUploadOptions();
@@ -402,13 +441,20 @@ angular.module('starter.services', [])
 
             var defs = [];
 
-            var s = '';
+            var s = [];
             angular.forEach(data.pic, function (item) {
                 if (item) {
                     var deferred = $q.defer();
+                    //从imageURI中返回image的名字。
                     options.fileName = item.substr(item.lastIndexOf('/') + 1);
+                    var prex = 'src="';
+                    var start, end;
+                    //上传文件的四个参数，图片的URI，服务器的上传接口，成功回掉函数和错误回调函数。
                     fileTransfer.upload(item, targetPath, function (success) {
-                        s += success.response.substring(2);
+                        //如果成功上传，则将文件的名字push到s数组中
+                        start = success.response.indexOf(prex) + prex.length;
+                        end = success.response.indexOf('"', start);
+                        s.push(success.response.substring(start, end));
                         deferred.resolve(success);
                     }, function (error) {
                         deferred.reject(error);
@@ -420,7 +466,13 @@ angular.module('starter.services', [])
             var deferred = $q.defer();
             $q.all(defs).then(
                 function (success) {
-                    $http.post(_url + '/PublishNews', { title: data.title, contents: data.contents + s, picCode: '' })
+                    $http({
+                        method: 'post',
+                        url: _url,
+                        data: { title: data.title, description: data.description, price: data.price, contact: data.contact, labels: data.labels, newness: data.newness, maxCount: data.maxCount, place: data.place, tradeEndTime: data.tradeEndTime },
+                        headers: {'Authorization':' Bearer {token}'}
+                    })
+                    //$http.post(_url + '/PublishCommodity', { title: data.title, description: data.description, price: data.price, contact: data.contact, labels: data.labels, newness: data.newness, maxCount: data.maxCount, place: data.place, tradeEndTime: data.tradeEndTime, pictureUrl: s[0]})
                     .success(function (success) {
                         deferred.resolve(success);
                     }).error(function (error) {
@@ -431,7 +483,7 @@ angular.module('starter.services', [])
                     deferred.reject(error);
                 });
             return deferred.promise;
-        }
+        },
         }
     }
 )
@@ -474,51 +526,51 @@ angular.module('starter.services', [])
     }
 })
 
-.factory('GoodsInformation', function ($http,$q) {
-    return {
-        publish: function (data) {
-            //首先调用cordava的文件传输类
-            var fileTransfer = new FileTransfer();
-            var options = new FileUploadOptions();
-            options.fileKey = "file";
-            options.mimeType = "image/jpeg";
-            var targetPath = _host + '/File/UploadImage';
+//.factory('GoodsInformation', function ($http,$q) {
+//    return {
+//        publish: function (data) {
+//            //首先调用cordava的文件传输类
+//            var fileTransfer = new FileTransfer();
+//            var options = new FileUploadOptions();
+//            options.fileKey = "file";
+//            options.mimeType = "image/jpeg";
+//            var targetPath = _host + '/File/UploadImage';
 
-            var defs = [];
+//            var defs = [];
 
-            var s = '';
-            //foreach函数第二个参数方法中的参数item存放第一个参数的值
-            angular.forEach(data.pic, function (item) {
-                if (item) {
-                    var deferred = $q.defer();
-                    options.fileName = item.substr(item.lastIndexOf('/') + 1);
-                    fileTransfer.upload(item, targetPath, function (success) {
-                        s += success.response.substring(2);
-                        deferred.resolve(success);
-                    }, function (error) {
-                        deferred.reject(error);
-                    }, options);
-                    defs.push(deferred.promise);
-                }
-            });
+//            var s = '';
+//            //foreach函数第二个参数方法中的参数item存放第一个参数的值
+//            angular.forEach(data.pic, function (item) {
+//                if (item) {
+//                    var deferred = $q.defer();
+//                    options.fileName = item.substr(item.lastIndexOf('/') + 1);
+//                    fileTransfer.upload(item, targetPath, function (success) {
+//                        s += success.response.substring(2);
+//                        deferred.resolve(success);
+//                    }, function (error) {
+//                        deferred.reject(error);
+//                    }, options);
+//                    defs.push(deferred.promise);
+//                }
+//            });
 
-            var deferred = $q.defer();
-            $q.all(defs).then(
-                function (success) {
-                    $http.post(_url + '/PublishCommodity', { Title: data.title, Description: data.description + s, Price: data.price, Contact: '', Picture: '', PicCode: '', Labels: 'data.labels', Newness: '', MaxCount: '', Place: '', TradeEndTime: '' })
-                    .success(function (success) {
-                        deferred.resolve(success);
-                    }).error(function (error) {
-                        deferred.reject(error);
-                    });
-                },
-                function (error) {
-                    deferred.reject(error);
-                });
-            return deferred.promise;
-        },
-    }
-})
+//            var deferred = $q.defer();
+//            $q.all(defs).then(
+//                function (success) {
+//                    $http.post(_url + '/PublishCommodity', { Title: data.title, Description: data.description + s, Price: data.price, Contact: '', Picture: '', PicCode: '', Labels: 'data.labels', Newness: '', MaxCount: '', Place: '', TradeEndTime: '' })
+//                    .success(function (success) {
+//                        deferred.resolve(success);
+//                    }).error(function (error) {
+//                        deferred.reject(error);
+//                    });
+//                },
+//                function (error) {
+//                    deferred.reject(error);
+//                });
+//            return deferred.promise;
+//        },
+//    }
+//})
 
 //.factory('Messages', function ($websocket) {
 //    //建立webSocket连接，定义collection变量存放消息数据。
@@ -575,3 +627,28 @@ angular.module('starter.services', [])
 
 //    };
 //})
+
+.factory('Talkings', function ($http, $q) {
+    return {
+        remark: function (talkingID, remarks, imei) {
+            var deferred = $q.defer();
+            $http.post(_url + '/AddTalkingRemark', { talkingID: talkingID, remarks: remarks, imei: imei })
+            .success(function (success) {
+                deferred.resolve(success);
+            }).error(function (error) {
+                deferred.reject(error);
+            });
+            return deferred.promise;
+        },
+        getTalkings: function (pageIndex, pageSize) {
+            var deferred = $q.defer();
+            $http.get(_url + '/GetTalkings?pageIndex=' + pageIndex + '&pageSize=' + pageSize + '&remarksPageIndex=1&remarksPageSize=100', {})
+            .success(function (data) {
+                deferred.resolve(data);
+            }).error(function (data) {
+                deferred.reject(data);
+            });
+            return deferred.promise;
+        }
+    }
+})
