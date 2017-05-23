@@ -2,9 +2,9 @@
     <ion-content>
         <div class="list">
             <!--这里显示商品详情的页面需要独立于tabs,单独设置一个页面。-->
-            <a class="item item-thumbnail-left" ng-repeat="thing in things" href="#/{{thing.id}}">
-                <img src="{{thing.face}}">
-                <h2>{{thing.name}}</h2>
+            <a class="item item-thumbnail-left" ng-repeat="collection in collections" href="#/{{collection.id}}">
+                <div class="collectionPicture" ng-bind-html="collection.Picture"></div>
+                <h2>{{collection.Title}}</h2>
                 <p>100</p>
             </a>
 

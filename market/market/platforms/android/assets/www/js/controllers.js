@@ -5,7 +5,7 @@ angular.module('starter.controllers', [])
     $scope.things = Chats.all();
 })
 
-.controller('DashDetailCtrl', function ($scope, $stateParams, Chats, Details, $ionicPopup, Users, $state, GoodsInformations, Talkings, $ionicLoading) {
+.controller('DashDetailCtrl', function ($scope, $stateParams, Chats, Details, $ionicPopup, Users, $state, GoodsInformations, Talkings, $ionicLoading, $sce) {
     //var confirmPopup = $ionicPopup.confirm({
     //        title: '中北市场',
     //        template: '是否发布商品信息?',
@@ -43,7 +43,11 @@ angular.module('starter.controllers', [])
             cancelText: '取消'
         })
     };
-    $scope.thing = Chats.get($stateParams.thingId);
+    GoodsInformations.getGoodsDetail($stateParams.thingId)
+    .then(function (data) {
+        data.Picture = $sce.trustAsHtml(data.Picture);
+        $scope.goodsInformation = data;
+    });
     $scope.display = Details.hideOrShow();
     //使用$on监听事件的刚加载执行的方法
     $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
@@ -51,7 +55,7 @@ angular.module('starter.controllers', [])
     });
     $scope.notAdd = true;
     $scope.addCollection = function (goodsId) {
-        Details.collect(goodsId).then(function () {
+        GoodsInformations.collect(goodsId).then(function () {
             var hintPopup = $ionicPopup.prompt({
                 title: '<strong>success</strong>'
             });
@@ -208,20 +212,30 @@ angular.module('starter.controllers', [])
     });
 })
 
-.controller('CollectCtrl', function ($scope, Chats) {
+.controller('CollectCtrl', function ($scope, Chats,Users,$sce) {
     $scope.things = Chats.all();
     $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
         viewData.enableBack = true;
     });
+    var pageIndex = 1;
+    var pageSize = 10;
+    Users.getCollection(pageIndex, pageSize)
+    .then(function (data) {
+        data.Picture = $sce.trustAsHtml(data.Picture);
+        $scope.collections = data;
+    }, function () {
+        console.log('error');
+    })
 })
 
-.controller('DashSportsCtrl', function ($scope, GoodsInformations, $ionicLoading) {
+.controller('DashSportsCtrl', function ($scope, GoodsInformations, $ionicLoading, $sce) {
     $scope.scollData = { currentPageIndex: 1, haveData: true, pageLoading: true };
     GoodsInformations.getGoodsInformations('','',$scope.scollData.currentPageIndex, 10).then(function (data) {
 
         //if (data == null) {
         //    $state.go("tab.news-unsucess");
         //}
+        data.Picture = $sce.trustAsHtml(data.Picture);
         $scope.goodsInformations = data;
         $scope.scollData.pageLoading = false;
         $scope.judgeOnload = true;
@@ -254,7 +268,7 @@ angular.module('starter.controllers', [])
         $scope.username = Users.getUserName();
         if (Users.getPicture() != null) $scope.picture = Users.getPicture(); else $scope.picture = '/img/ionic.png';
         $scope.discribe = '这个家伙很懒，没有个人介绍';
-    },100);
+    }, 100);
     $ionicPopover.fromTemplateUrl('/templates/personal/loginRegistPopover.html', {
         scope: $scope
     }).then(function (popover) {
@@ -333,7 +347,7 @@ angular.module('starter.controllers', [])
 //$scope对象的属性名不能为messages,angularjs不仅模块之间存在依赖关系，模块与模块之下的服务也存在依赖关系，类似于一个树型结构，父模块是根，之后是子模块，之后是子模块之下的服务
 //所以存在模块层级和服务层级两个级别，兄弟模块的服务互相可见，所以兄弟服务的变量也相互可见，在Messages服务中创建了一个变量messages，在MessageListCtrl中引入Messages服务，
 //则对messages变量MessageListCtrl是可见的。所以$scope中的属性不能命名为messages。
-.controller('MessageListCtrl', function ($scope,Messages, $ionicPopup) {
+.controller('MessageListCtrl', function ($scope,Messages, $ionicPopup,$state) {
     $scope.manys = Messages.all();
     //$scope.username = 'anonymous';
     //$scope.Messages = Messages;
@@ -372,16 +386,17 @@ angular.module('starter.controllers', [])
     $scope.getPicture = function (id, type) {
         Camera.getPicture(type).then(function (imageURI) {
             $scope.data.pic[id] = imageURI;
-        }, function (err) {
+        }, function (error) {
             console.log(error);
         });
     };
     $scope.publish = function () {
+        console.log($scope.data);
         var checkPic = false;
         //如果检测到有图片上传成功，将checkPic设置为true
         angular.forEach($scope.data.pic, function (item) { if (item != '') checkPic = true; });
         //最终的检查结果是上传图片或者内容并且上传标题
-        var checked = true ;
+        var checked = checkPic ;
 
         if (!checked) {
             $ionicPopup.alert({

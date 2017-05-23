@@ -42,6 +42,22 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
 }])
 
+.config(function ($httpProvider) {
+    $httpProvider.interceptors.push(function () {
+        return {
+            'request': function (config) {
+                config.headers = config.headers || {};
+                var token = localStorage.getItem('token');
+                if (token) {
+                    config.headers.Authorization = 'Bearer ' + token;
+                    console.log('success');
+                }
+                return config;
+            }
+        }
+    })
+})
+
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -239,4 +255,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
      })
     $urlRouterProvider.otherwise('/tab/life');
 
-});
+}
+
+);

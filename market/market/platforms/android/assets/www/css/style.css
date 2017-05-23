@@ -208,3 +208,7 @@ ms-push-right {
 .rj-footer-btn-left {
   position: absolute !important;
   bottom: 0; }
+
+.collectionPicture img {
+    width:100%;
+}

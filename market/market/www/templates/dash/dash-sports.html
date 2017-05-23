@@ -5,12 +5,28 @@
 
     <ion-content class="has-subheader">
         <ion-refresher pulling-text="放手后刷新" pulling-icon="ios-aperture-outline" refreshing-text="刷新成功" refreshing-icon="ios-aperture" on-refresh="doRefresh()"></ion-refresher>
-        <div class="list" ng-if="judgeOnload">
+        <!--<div class="list" ng-if="judgeOnload">
             <a class="item item-thumbnail-left" ng-repeat="goodsInformation in goodsInformations">
                 <img src="{{goodsInformation.Picture}}">
                 <h2>{{goodsInformation.Title}}</h2>
                 <p>100</p>
             </a>
+        </div>-->
+        <div class="row row-wrap">
+            <div class="col col-50" ng-repeat="goodsInformation in goodsInformations">
+                <a ng-href="#/{{goodsInformation.CommodityID}}">
+                    <div style="background-color:white">
+                        <div class="collectionPicture" ng-bind-html="goodsInformation.Picture"></div>
+                        <!--<img src="{{goodsInformation.Picture}}" style="width:100%" />-->
+                        <h5 style="text-align:center">{{goodsInformation.Title}}</h5>
+                        <div>
+                            <h6 style="display:inline">￥</h6>
+                            <h4 style="display:inline">{{goodsInformation.Price}}</h4>
+                            <h6 style="display:inline;padding-left:50px">0人评论</h6>
+                        </div>
+                    </div>
+                </a>
+            </div>
         </div>
         <div class="onload-tip" ng-if="judgeTip">
             <strong>sorry</strong>

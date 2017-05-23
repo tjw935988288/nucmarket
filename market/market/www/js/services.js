@@ -103,17 +103,17 @@ angular.module('starter.services', [])
                 more.appendChild(div);
             } 
         },
-        collect: function (goodsId) {
-            var defered = $q.defer();
-            $http.post(_url + '/addCollection', { goodsId: goodsId })
-            .success(function (success) {
-                defered.resolve(success);
-            })
-            .error(function (error) {
-                defered.reject(error);
-            });
-            return defered.promise;
-        }
+        //collect: function (goodsId) {
+        //    var defered = $q.defer();
+        //    $http.post(_url + '/addCollection', { goodsId: goodsId })
+        //    .success(function (success) {
+        //        defered.resolve(success);
+        //    })
+        //    .error(function (error) {
+        //        defered.reject(error);
+        //    });
+        //    return defered.promise;
+        //}
     };
 })
 
@@ -346,32 +346,21 @@ angular.module('starter.services', [])
             });
             return deferred.promise;
         },
-    }
-})
-
-.factory('GoodsInformations', function ($http,$q) {
-    return {
-        getGoodsInformations: function () {
+        getCollection: function (pageIndex,pageSize) {
             var deferred = $q.defer();
-            $http.get(_url + '/GetPictureNews?pageSize=5', {})
+            $http.get(_url + '/GetCommoditiesByFavorite?pageIndex='+pageIndex+'&pageSize='+pageSize)
             .success(function (data) {
                 deferred.resolve(data);
             }).error(function (data) {
                 deferred.reject(data);
             });
             return deferred.promise;
-        },
-        //getGoodsInformations: function (pageIndex, pageSize) {
-        //    var deferred = $q.defer();
-        //    $http.get(_url + '/GetNews?pageIndex=' + pageIndex + "&pageSize=" + pageSize, {})
-        //    .success(function (data) {
-        //        deferred.resolve(data);
-        //    }).error(function (data) {
-        //        deferred.reject(data);
-        //    });
-        //    //promise = $q.when(config);
-        //    return deferred.promise;
-        //},
+        }
+    }
+})
+
+.factory('GoodsInformations', function ($http,$q) {
+    return {
         getGoodsInformations: function (label,title, pageIndex, pageSize) {
             var deferred = $q.defer();
             $http.get(_url + '/GetCommodities?label=&title=&pageIndex='+pageIndex+'&pageSize='+pageSize, {})
@@ -383,9 +372,9 @@ angular.module('starter.services', [])
             //promise = $q.when(config);
             return deferred.promise;
         },
-        getGoodsDetail:function(goodsId){
+        getGoodsDetail: function (thingId) {
             var deferred = $q.defer();
-            $http.get(_url + 'GetCommodity?id=' + goodsId)
+            $http.get(_url + '/GetCommodity?id=' + thingId, {})
             .success(function (data) {
                 deferred.resolve(data);
             }).error(function (data) {
@@ -440,7 +429,6 @@ angular.module('starter.services', [])
             var targetPath = _host + '/File/UploadImage';
 
             var defs = [];
-
             var s = [];
             angular.forEach(data.pic, function (item) {
                 if (item) {
@@ -454,7 +442,10 @@ angular.module('starter.services', [])
                         //如果成功上传，则将文件的名字push到s数组中
                         start = success.response.indexOf(prex) + prex.length;
                         end = success.response.indexOf('"', start);
-                        s.push(success.response.substring(start, end));
+                        var src = success.response.substring(start, end);
+                        var img = '<img src=http://59.48.248.41:1020//UploadFiles/Images/' + src + ' />';
+                        //这里push到数组s中的应该是类似与src=“{图片}”这样的数据。
+                        s.push(img);
                         deferred.resolve(success);
                     }, function (error) {
                         deferred.reject(error);
@@ -462,17 +453,10 @@ angular.module('starter.services', [])
                     defs.push(deferred.promise);
                 }
             });
-
             var deferred = $q.defer();
             $q.all(defs).then(
                 function (success) {
-                    $http({
-                        method: 'post',
-                        url: _url,
-                        data: { title: data.title, description: data.description, price: data.price, contact: data.contact, labels: data.labels, newness: data.newness, maxCount: data.maxCount, place: data.place, tradeEndTime: data.tradeEndTime },
-                        headers: {'Authorization':' Bearer {token}'}
-                    })
-                    //$http.post(_url + '/PublishCommodity', { title: data.title, description: data.description, price: data.price, contact: data.contact, labels: data.labels, newness: data.newness, maxCount: data.maxCount, place: data.place, tradeEndTime: data.tradeEndTime, pictureUrl: s[0]})
+                    $http.post(_url + '/PublishCommodity', { title: data.title, description: data.description, price: data.price, contact: data.contact,picture:s,piccode:'', labels: data.labels, newness:'', maxCount:'', place:'', tradeEndTime: data.tradeEndTime})
                     .success(function (success) {
                         deferred.resolve(success);
                     }).error(function (error) {
@@ -484,6 +468,17 @@ angular.module('starter.services', [])
                 });
             return deferred.promise;
         },
+        collect: function (goodsId) {
+            var deferred = $q.defer();
+            $http.post(_url + '/AddCommodityFavorite?id=' + goodsId)
+            .success(function (data) {
+                deferred.resolve(data);
+            }).error(function (error) {
+                deferred.reject(error);
+                console.log(error);
+            });
+            return deferred.promise;
+        }
         }
     }
 )
