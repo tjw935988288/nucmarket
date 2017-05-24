@@ -443,7 +443,7 @@ angular.module('starter.services', [])
                         start = success.response.indexOf(prex) + prex.length;
                         end = success.response.indexOf('"', start);
                         var src = success.response.substring(start, end);
-                        var img = '<img src=http://59.48.248.41:1020//UploadFiles/Images/' + src + ' />';
+                        var img = '<img ' + src + ' />';
                         //这里push到数组s中的应该是类似与src=“{图片}”这样的数据。
                         s.push(img);
                         deferred.resolve(success);
