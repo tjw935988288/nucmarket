@@ -2,18 +2,20 @@
     <ion-content>
         <div class="list card display">
 
-            <div class="item item-avatar item-button-right">
-                <!--<div ng-bind-html="goodsInformation.Picture"></div>-->
-                <h2>{{goodsInformation.CommodityID}}</h2>
-                <button class="button" style="top:20px;background-color:#66FF66">
-                    <i class="icon ion-ios-telephone">123</i>
+            <div class="item item-button-right">
+                {{goodsInformation.Nickname}}
+                <button class="button" style="background-color:#66FF66">
+                    <i class="icon ion-ios-telephone">{{goodsInformation.MobilePhone}}</i>
                 </button>
             </div>
 
             <div class="item item-button-right">
                 {{goodsInformation.Title}}
-                <button ng-class="{collectButtonColor:notAdd}" class="button" ng-click="addCollection(goodsInformation.CommodityID)">
+                <button ng-class="{collectButtonColor:notAdd}" class="button button-positive" ng-click="addCollection(goodsInformation.CommodityID)" ng-if="!isCollect">
                     <i>收藏</i>
+                </button>
+                <button ng-class="{collectButtonColor:notAdd}" class="button button-positive" ng-click="addCollection(goodsInformation.CommodityID)" ng-if="isCollect" disabled>
+                    <i>已收藏</i>
                 </button>
             </div>
 
@@ -44,10 +46,13 @@
             </div>
 
             <div class="item item-text-wrap">{{goodsInformation.Description}}</div>
-            <div class="item item-button-right">{{goodsInformation.Price}}
-                <button class="button button-positive" ng-click="buying()" ng-disabled="canBuy">
+            <div class="item" style="color:red">￥{{goodsInformation.Price}}
+                <h3 style="float:right;font-weight:800">
+                    如果要购买请与卖家联系
+                </h3>
+                <!--<button class="button button-positive" ng-click="buying()" ng-disabled="canBuy">
                     <i>购买</i>
-                </button>
+                </button>-->
             </div>
             <!--<button class="button button-positive" ng-click="doRemark({{item.ID}})" style="float:right">
                 <i class="icon ion-compose"></i>
@@ -66,6 +71,8 @@
                 </ul>
             </div>-->
         </div>
-        <div class="padding-horizontal" style="float:right">2017</div>
+        <div class="padding-horizontal" style="float:right">
+            <p>这件商品会在{{goodsInformation.TradeEndTime}}之前下架</p>
+        </div>
     </ion-content>
 </ion-view>

@@ -1,0 +1,38 @@
+﻿<ion-view view-title="发布详情">
+    <ion-content>
+        <ion-content>
+            <div class="list card display">
+
+                <div class="item item-image" id="one" ng-show="display">
+                    <div ng-bind-html="goodsInformation.Picture"></div>
+                </div>
+
+                <div class="item picture-out-item" id="more" ng-hide="display">
+                    <ion-scroll direction="x">
+                        <div id="node_insert" class="all-project-scroll">
+                            <div class="picture-project-item">
+                                <img src="{{goodsInformation.Picture}}" class="img-scroll-item">
+                            </div>
+                            <div class="picture-project-item">
+                                <img src="{{goodsInformation.Picture}}" class="img-scroll-item">
+                            </div>
+                            <div class="picture-project-item">
+                                <img src="{{goodsInformation.Picture}}" class="img-scroll-item">
+                            </div>
+                            <div class="picture-project-item">
+                                <img src="{{goodsInformation.Picture}}" class="img-scroll-item">
+                            </div>
+                            <div class="picture-project-item">
+                                <img src="{{goodsInformation.Picture}}" class="img-scroll-item">
+                            </div>
+                        </div>
+                    </ion-scroll>
+                </div>
+
+            </div>
+            <div class="padding-horizontal" style="float:right">
+                <p>这件商品会在{{goodsInformation.TradeEndTime}}之前下架</p>
+            </div>
+        </ion-content>
+    </ion-content>
+</ion-view>

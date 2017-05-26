@@ -1,13 +1,16 @@
 ﻿<ion-view view-title="收藏夹">
     <ion-content>
+        <ion-refresher pulling-text="放手后刷新" pulling-icon="ios-aperture-outline" refreshing-text="刷新成功" refreshing-icon="ios-aperture" on-refresh="doRefresh()"></ion-refresher>
         <div class="list">
             <!--这里显示商品详情的页面需要独立于tabs,单独设置一个页面。-->
-            <a class="item item-thumbnail-left" ng-repeat="collection in collections" href="#/{{collection.id}}">
+            <a class="item" ng-repeat="collection in collections" href="#/{{collection.CommodityID}}">
                 <div class="collectionPicture" ng-bind-html="collection.Picture"></div>
-                <h2>{{collection.Title}}</h2>
-                <p>100</p>
+                <div class="character">
+                    <h2>{{collection.Title}}</h2>
+                    <p style="color:red">￥{{collection.Price}}</p>
+                </div>
             </a>
-
         </div>
+        <ion-infinite-scroll ng-if="scollData.haveData" on-infinite="loadMore()" distance="1%"></ion-infinite-scroll>
     </ion-content>
 </ion-view>

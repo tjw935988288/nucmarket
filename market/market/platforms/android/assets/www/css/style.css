@@ -209,6 +209,26 @@ ms-push-right {
   position: absolute !important;
   bottom: 0; }
 
+.collectionPicture {
+    padding:0px;
+}
+
 .collectionPicture img {
+    width:100px;
+    height:100px;
+}
+
+.showPicture img{
     width:100%;
+    height:156px;
+}
+
+.character {
+    position:absolute;
+    top:40px;
+    left:150px;
+}
+
+.backColor{
+    background-color:#F5F5F5;
 }

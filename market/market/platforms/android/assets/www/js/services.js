@@ -363,7 +363,7 @@ angular.module('starter.services', [])
     return {
         getGoodsInformations: function (label,title, pageIndex, pageSize) {
             var deferred = $q.defer();
-            $http.get(_url + '/GetCommodities?label=&title=&pageIndex='+pageIndex+'&pageSize='+pageSize, {})
+            $http.get(_url + '/GetCommodities?label=' + encodeURIComponent(label) + '&title=' + title + '&pageIndex=' + pageIndex + '&pageSize=' + pageSize, {})
             .success(function (data) {
                 deferred.resolve(data);
             }).error(function (data) {
@@ -471,6 +471,17 @@ angular.module('starter.services', [])
         collect: function (goodsId) {
             var deferred = $q.defer();
             $http.post(_url + '/AddCommodityFavorite?id=' + goodsId)
+            .success(function (data) {
+                deferred.resolve(data);
+            }).error(function (error) {
+                deferred.reject(error);
+                console.log(error);
+            });
+            return deferred.promise;
+        },
+        getCommodityByPublisher: function (pageIndex,pageSize) {
+            var deferred = $q.defer();
+            $http.get(_url + '/GetCommoditiesByPublisher?pageIndex=' + pageIndex + '&pageSize=' + pageSize)
             .success(function (data) {
                 deferred.resolve(data);
             }).error(function (error) {
@@ -637,7 +648,7 @@ angular.module('starter.services', [])
         },
         getTalkings: function (pageIndex, pageSize) {
             var deferred = $q.defer();
-            $http.get(_url + '/GetTalkings?pageIndex=' + pageIndex + '&pageSize=' + pageSize + '&remarksPageIndex=1&remarksPageSize=100', {})
+            $http.get(_url + '/GetTalkings?pageIndex=' + pageIndex + '&pageSize=' + pageSize + '&remarksPageIndex=1&remarksPageSize=10', {})
             .success(function (data) {
                 deferred.resolve(data);
             }).error(function (data) {

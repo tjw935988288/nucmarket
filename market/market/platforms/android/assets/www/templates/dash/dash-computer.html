@@ -1,0 +1,42 @@
+﻿<ion-view view-title="中北市场" hide-back-button="true">
+    <!--<ion-nav-buttons side="right">
+        <a class="button button-clear" ng-href="#/talking"><i class="icon ion-ios-chatbubble-outline"></i></a>
+    </ion-nav-buttons>-->
+
+    <ion-content class="has-subheader" ng-class="{backColor:!noData}">
+        <ion-refresher pulling-text="放手后刷新" pulling-icon="ios-aperture-outline" refreshing-text="刷新成功" refreshing-icon="ios-aperture" on-refresh="doRefresh()"></ion-refresher>
+        <!--<div class="list" ng-if="judgeOnload">
+            <a class="item item-thumbnail-left" ng-repeat="goodsInformation in goodsInformations">
+                <img src="{{goodsInformation.Picture}}">
+                <h2>{{goodsInformation.Title}}</h2>
+                <p>100</p>
+            </a>
+        </div>-->
+        <div ng-if='noData' style="position:absolute;top:100px;left:80px;">
+            <img src="../../img/unlucking.png">
+            <p style="position:absolute;left:50px">暂时无人发布</p>
+        </div>
+        <div class="row row-wrap">
+            <div class="col col-50" ng-repeat="goodsInformation in goodsInformations">
+                <a ng-href="#/{{goodsInformation.CommodityID}}">
+                    <div style="background-color:white">
+                        <div class="showPicture" ng-bind-html="goodsInformation.Picture"></div>
+                        <!--<img src="{{goodsInformation.Picture}}" style="width:100%" />-->
+                        <h5 style="text-align:center">{{goodsInformation.Title}}</h5>
+                        <div>
+                            <h6 style="display:inline;color:red">￥</h6>
+                            <h4 style="display:inline;color:red">{{goodsInformation.Price}}</h4>
+                            <h6 style="display:inline;padding-left:30px">快来看看吧</h6>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="onload-tip" ng-if="judgeTip" style="position:absolute;top:100px;left:80px;">
+            <img src="../../img/unlucking.png">
+            <p>加载失败，请检查网络</p>
+            <button ng-click="reOnload()" style="position:absolute;left:50px">重新加载</button>
+        </div>
+        <ion-infinite-scroll ng-if="scollData.haveData" on-infinite="loadMore()" distance="1%"></ion-infinite-scroll>
+    </ion-content>
+</ion-view>

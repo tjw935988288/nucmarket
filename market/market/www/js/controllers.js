@@ -1,4 +1,4 @@
-angular.module('starter.controllers', [])
+﻿angular.module('starter.controllers', [])
 
 .controller('DashCtrl', function ($scope, Chats) {
     $scope.headers = [0, 1, 2, 3];
@@ -43,9 +43,25 @@ angular.module('starter.controllers', [])
             cancelText: '取消'
         })
     };
+    var judgeCollect = function (data) {
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].CommodityID == $stateParams.thingId) {
+                $scope.isCollect = true;
+                break;
+            }
+        }
+    }
+    //方法中调用另一个方法
+    $scope.isCollect = false;
+    Users.getCollection(1, 100)
+    .then(function (data) {
+        judgeCollect(data);
+    })
     GoodsInformations.getGoodsDetail($stateParams.thingId)
     .then(function (data) {
         data.Picture = $sce.trustAsHtml(data.Picture);
+        var time = data.TradeEndTime.substring(0, 10);
+        data.TradeEndTime = time;
         $scope.goodsInformation = data;
     });
     $scope.display = Details.hideOrShow();
@@ -56,13 +72,17 @@ angular.module('starter.controllers', [])
     $scope.notAdd = true;
     $scope.addCollection = function (goodsId) {
         GoodsInformations.collect(goodsId).then(function () {
-            var hintPopup = $ionicPopup.prompt({
-                title: '<strong>success</strong>'
+            Users.getCollection(1, 100)
+        .then(function (data) {
+            judgeCollect(data);
+        })
+            var hintPopup = $ionicPopup.alter({
+                title: '<strong>添加收藏夹成功</strong>'
             });
             $scope.judge = false;
         }, function () {
             var hinitPopup = $ionicPopup.alert({
-                title: '<strong>please check internet</strong>'
+                title: '<strong>添加收藏夹失败，请检查网络</strong>'
             });
         })
     }
@@ -110,59 +130,22 @@ angular.module('starter.controllers', [])
     }
 })
 
-.controller('DashLifeCtrl', function ($scope,Chats) {
-    $scope.things = Chats.all();
-})
-
-.controller('DashStudyCtrl', function ($scope, GoodsInformations,$ionicLoading) {
-    //GoodsInformations.getGoodsInformations().then(function (data) {
-    //    $scope.goodsInformations = data;
-    //});
-    $ionicLoading.show();
-    //currentPageInde的值代表当前页，haveData的值代表后端是否还有数据，pageLoading的值不知道
-    $scope.scollData = { currentPageIndex: 1, haveData: true, pageLoading: true };
-    $scope.judgeOnload;
-    $scope.judgeTip;
-    $scope.reOnload = function () {
-        GoodsInformations.getGoodsInformations($scope.scollData.currentPageIndex, 10).then(function (data) {
-
-            //if (data == null) {
-            //    $state.go("tab.news-unsucess");
-            //}
-            $scope.goodsInformations = data;
-            $scope.scollData.pageLoading = false;
-            $scope.judgeOnload = true;
-            $scope.judgeTip = false;
-            $ionicLoading.hide();
-            console.log(data);
-            //$timeout(function () {
-            //    ionicMaterialMotion.fadeSlideIn({
-            //        selector: '.animate-fade-slide-in .item'
-            //    });
-            //}, 200);
-        }, function () {
-            $scope.judgeOnload = false;
-            $scope.judgeTip = true;
-            $ionicLoading.hide();
-        });
-    }
-    //载入study页面时先执行getGoodsInformations方法获取信息
-    GoodsInformations.getGoodsInformations($scope.scollData.currentPageIndex, 10).then(function (data) {
-
-        //if (data == null) {
-        //    $state.go("tab.news-unsucess");
-        //}
+.controller('DashDigitalCtrl', function ($scope, GoodsInformations, $ionicLoading, $sce) {
+    $scope.noData = false;
+    $scope.scollData = {
+        currentPageIndex: 1,
+        haveData: true,
+        pageLoading: true
+    };
+    GoodsInformations.getGoodsInformations('数码', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+        data.Picture = $sce.trustAsHtml(data.Picture);
+        if (data == null || data.length == 0) { $scope.noData = true; };
         $scope.goodsInformations = data;
         $scope.scollData.pageLoading = false;
         $scope.judgeOnload = true;
         $scope.judgeTip = false;
         $ionicLoading.hide();
         console.log(data);
-        //$timeout(function () {
-        //    ionicMaterialMotion.fadeSlideIn({
-        //        selector: '.animate-fade-slide-in .item'
-        //    });
-        //}, 200);
     }, function () {
         $scope.judgeOnload = false;
         $scope.judgeTip = true;
@@ -170,14 +153,213 @@ angular.module('starter.controllers', [])
     });
     $scope.doRefresh = function () {
         $scope.scollData.currentPageIndex = 1;
+        GoodsInformations.getGoodsInformations('数码', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+            $scope.goodsInformations = data;
+            $scope.$broadcast('scroll.refreshComplete');
+        });
+    }
+    $scope.loadMore = function () {
+        if ($scope.scollData.pageLoading) {
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+        }
+        else {
+            $scope.scollData.currentPageIndex += 1;
+            GoodsInformations.getGoodsInformations('数码', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+                if (data == null || data.length == 0) {
+                    $scope.scollData.haveData = false;
+                    return;
+                } else $scope.scollData.haveData = true;
+                $scope.scollData.havaData = true;
+                $scope.goodsInformations = $scope.goodsInformations.concat(data);
+                $scope.$broadcast('scroll.infiniteScrollComplete');
+            }, function () {
+                $scope.scollData.havaData = false;
+            });
+        }
+    }
+})
+
+.controller('DashBookCtrl', function ($scope, GoodsInformations, $ionicLoading, $sce) {
+    $scope.noData = false;
+    $scope.scollData = {
+        currentPageIndex: 1,
+        haveData: true,
+        pageLoading: true
+    };
+    GoodsInformations.getGoodsInformations('书籍', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+        data.Picture = $sce.trustAsHtml(data.Picture);
+        if (data == null || data.length == 0) { $scope.noData = true; };
+        $scope.goodsInformations = data;
+        $scope.scollData.pageLoading = false;
+        $scope.judgeOnload = true;
+        $scope.judgeTip = false;
+        $ionicLoading.hide();
+        console.log(data);
+    }, function () {
+        $scope.judgeOnload = false;
+        $scope.judgeTip = true;
+        $ionicLoading.hide();
+    });
+    $scope.doRefresh = function () {
+        $scope.scollData.currentPageIndex = 1;
+        GoodsInformations.getGoodsInformations('书籍', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+            $scope.goodsInformations = data;
+            $scope.$broadcast('scroll.refreshComplete');
+        });
+    }
+    $scope.loadMore = function () {
+        if ($scope.scollData.pageLoading) {
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+        }
+        else {
+            $scope.scollData.currentPageIndex += 1;
+            GoodsInformations.getGoodsInformations('书籍', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+                if (data == null || data.length == 0) {
+                    $scope.scollData.haveData = false;
+                    return;
+                } else $scope.scollData.haveData = true;
+                $scope.scollData.havaData = true;
+                $scope.goodsInformations = $scope.goodsInformations.concat(data);
+                $scope.$broadcast('scroll.infiniteScrollComplete');
+            }, function () {
+                $scope.scollData.havaData = false;
+            });
+        }
+    }
+})
+
+//.controller('DashBookCtrl', function ($scope, GoodsInformations,$ionicLoading) {
+//    //GoodsInformations.getGoodsInformations().then(function (data) {
+//    //    $scope.goodsInformations = data;
+//    //});
+//    $ionicLoading.show();
+//    //currentPageInde的值代表当前页，haveData的值代表后端是否还有数据，pageLoading的值不知道
+//    $scope.scollData = { currentPageIndex: 1, haveData: true, pageLoading: true };
+//    $scope.judgeOnload;
+//    $scope.judgeTip;
+//    $scope.reOnload = function () {
+//        GoodsInformations.getGoodsInformations($scope.scollData.currentPageIndex, 10).then(function (data) {
+
+//            //if (data == null) {
+//            //    $state.go("tab.news-unsucess");
+//            //}
+//            $scope.goodsInformations = data;
+//            $scope.scollData.pageLoading = false;
+//            $scope.judgeOnload = true;
+//            $scope.judgeTip = false;
+//            $ionicLoading.hide();
+//            console.log(data);
+//            //$timeout(function () {
+//            //    ionicMaterialMotion.fadeSlideIn({
+//            //        selector: '.animate-fade-slide-in .item'
+//            //    });
+//            //}, 200);
+//        }, function () {
+//            $scope.judgeOnload = false;
+//            $scope.judgeTip = true;
+//            $ionicLoading.hide();
+//        });
+//    }
+//    //载入study页面时先执行getGoodsInformations方法获取信息
+//    GoodsInformations.getGoodsInformations($scope.scollData.currentPageIndex, 10).then(function (data) {
+
+//        //if (data == null) {
+//        //    $state.go("tab.news-unsucess");
+//        //}
+//        $scope.goodsInformations = data;
+//        $scope.scollData.pageLoading = false;
+//        $scope.judgeOnload = true;
+//        $scope.judgeTip = false;
+//        $ionicLoading.hide();
+//        console.log(data);
+//        //$timeout(function () {
+//        //    ionicMaterialMotion.fadeSlideIn({
+//        //        selector: '.animate-fade-slide-in .item'
+//        //    });
+//        //}, 200);
+//    }, function () {
+//        $scope.judgeOnload = false;
+//        $scope.judgeTip = true;
+//        $ionicLoading.hide();
+//    });
+//    $scope.doRefresh = function () {
+//        $scope.scollData.currentPageIndex = 1;
+//        GoodsInformations.getGoodsInformations($scope.scollData.currentPageIndex, 10).then(function (data) {
+//            $scope.goodsInformations = data;
+//            $scope.$broadcast('scroll.refreshComplete');
+//            //$timeout(function () {
+//            //    ionicMaterialMotion.fadeSlideIn({
+//            //        selector: '.animate-fade-slide-in .item'
+//            //    });
+//            //}, 200);
+//        });
+//    }
+//    $scope.loadMore = function () {
+//        if ($scope.scollData.pageLoading) {
+//            $scope.$broadcast('scroll.infiniteScrollComplete');
+//        }
+//        else {
+//            $scope.scollData.currentPageIndex += 1;
+//            GoodsInformations.getGoodsInformations($scope.scollData.currentPageIndex, 10).then(function (data) {
+//                //if (data == null || data.length == 0) {
+//                //    $scope.scollData.haveData = false;
+//                //    return;
+//                //} else $scope.scollData.haveData = true;
+//                $scope.scollData.havaData = true;
+//                $scope.goodsInformations = $scope.goodsInformations.concat(data);
+//                $scope.$broadcast('scroll.infiniteScrollComplete');
+//            }, function () {
+//                $scope.scollData.havaData = false;
+//            });
+//        }
+//    }
+//})
+
+.controller('BuyCtrl', function ($scope) {
+    $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
+        viewData.enableBack = true;
+    });
+})
+
+.controller('CollectCtrl', function ($scope, Users, $sce, $interval) {
+    $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
+        viewData.enableBack = true;
+    });
+    $scope.scollData = {
+        currentPageIndex: 1,
+        haveData: true,
+        pageLoading: true
+    };
+    //if (!$scope.$$phase) {
+    //    $scope.$apply(Users.getCollection($scope.scollData.currentPageIndex, 10)
+    //.then(function (data) {
+    //    data.Picture = $sce.trustAsHtml(data.Picture);
+    //    $scope.collections = data;
+    //}, function () {
+    //    console.log('error');
+    //})())
+    //}
+    //$interval(function () {
+    //    Users.getCollection($scope.scollData.currentPageIndex, 10)
+    //.then(function (data) {
+    //    data.Picture = $sce.trustAsHtml(data.Picture);
+    //    $scope.collections = data;
+    //}, function () {
+    //    console.log('error');
+    //})
+    //}, 100);
+    Users.getCollection($scope.scollData.currentPageIndex, 10)
+    .then(function (data) {
+        data.Picture = $sce.trustAsHtml(data.Picture);
+        $scope.collections = data;
+    }, function () {
+        console.log('error');
+    })
+    $scope.doRefresh = function () {
+        $scope.scollData.currentPageIndex = 1;
         GoodsInformations.getGoodsInformations($scope.scollData.currentPageIndex, 10).then(function (data) {
             $scope.goodsInformations = data;
             $scope.$broadcast('scroll.refreshComplete');
-            //$timeout(function () {
-            //    ionicMaterialMotion.fadeSlideIn({
-            //        selector: '.animate-fade-slide-in .item'
-            //    });
-            //}, 200);
         });
     }
     $scope.loadMore = function () {
@@ -194,11 +376,6 @@ angular.module('starter.controllers', [])
                 $scope.scollData.havaData = true;
                 $scope.goodsInformations = $scope.goodsInformations.concat(data);
                 $scope.$broadcast('scroll.infiniteScrollComplete');
-                //$timeout(function () {
-                //    ionicMaterialMotion.fadeSlideIn({
-                //        selector: '.animate-fade-slide-in .item'
-                //    });
-                //}, 200);
             }, function () {
                 $scope.scollData.havaData = false;
             });
@@ -206,35 +383,28 @@ angular.module('starter.controllers', [])
     }
 })
 
-.controller('BuyCtrl', function ($scope) {
-    $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
-        viewData.enableBack = true;
-    });
-})
-
-.controller('CollectCtrl', function ($scope, Chats,Users,$sce) {
-    $scope.things = Chats.all();
+.controller('publishListCtrl', function (GoodsInformations,$scope,$sce) {
     $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
         viewData.enableBack = true;
     });
     var pageIndex = 1;
     var pageSize = 10;
-    Users.getCollection(pageIndex, pageSize)
+    GoodsInformations.getCommodityByPublisher(pageIndex, pageSize)
     .then(function (data) {
         data.Picture = $sce.trustAsHtml(data.Picture);
-        $scope.collections = data;
+        $scope.publitions = data;
     }, function () {
         console.log('error');
     })
 })
 
 .controller('DashSportsCtrl', function ($scope, GoodsInformations, $ionicLoading, $sce) {
-    $scope.scollData = { currentPageIndex: 1, haveData: true, pageLoading: true };
+    $scope.scollData = {
+        currentPageIndex: 1,
+        haveData: true,
+        pageLoading: true
+    };
     GoodsInformations.getGoodsInformations('','',$scope.scollData.currentPageIndex, 10).then(function (data) {
-
-        //if (data == null) {
-        //    $state.go("tab.news-unsucess");
-        //}
         data.Picture = $sce.trustAsHtml(data.Picture);
         $scope.goodsInformations = data;
         $scope.scollData.pageLoading = false;
@@ -242,26 +412,337 @@ angular.module('starter.controllers', [])
         $scope.judgeTip = false;
         $ionicLoading.hide();
         console.log(data);
-        //$timeout(function () {
-        //    ionicMaterialMotion.fadeSlideIn({
-        //        selector: '.animate-fade-slide-in .item'
-        //    });
-        //}, 200);
     }, function () {
         $scope.judgeOnload = false;
         $scope.judgeTip = true;
         $ionicLoading.hide();
     });
+    $scope.doRefresh = function () {
+        $scope.scollData.currentPageIndex = 1;
+        GoodsInformations.getGoodsInformations('', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+            $scope.goodsInformations = data;
+            $scope.$broadcast('scroll.refreshComplete');
+        });
+    }
+    $scope.loadMore = function () {
+        if ($scope.scollData.pageLoading) {
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+            $scope.noData = true;
+        }
+        else {
+            $scope.scollData.currentPageIndex += 1;
+            GoodsInformations.getGoodsInformations('', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+                if (data == null || data.length == 0) {
+                    $scope.scollData.haveData = false;
+                    return;
+                } else $scope.scollData.haveData = true;
+                $scope.scollData.havaData = true;
+                $scope.goodsInformations = $scope.goodsInformations.concat(data);
+                $scope.$broadcast('scroll.infiniteScrollComplete');
+            }, function () {
+                $scope.scollData.havaData = false;
+            });
+        }
+    }
 })
 
-.controller('DashPlayCtrl', function ($scope) {
+.controller('DashPhoneCtrl', function ($scope, GoodsInformations, $ionicLoading, $sce) {
+    $scope.noData = false;
+    $scope.scollData = {
+        currentPageIndex: 1,
+        haveData: true,
+        pageLoading: true
+    };
+    GoodsInformations.getGoodsInformations('手机', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+        data.Picture = $sce.trustAsHtml(data.Picture);
+        if (data == null || data.length == 0) { $scope.noData = true; };
+        $scope.goodsInformations = data;
+        $scope.scollData.pageLoading = false;
+        $scope.judgeOnload = true;
+        $scope.judgeTip = false;
+        $ionicLoading.hide();
+        console.log(data);
+    }, function () {
+        $scope.judgeOnload = false;
+        $scope.judgeTip = true;
+        $ionicLoading.hide();
+    });
+    $scope.doRefresh = function () {
+        $scope.scollData.currentPageIndex = 1;
+        GoodsInformations.getGoodsInformations('手机', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+            $scope.goodsInformations = data;
+            $scope.$broadcast('scroll.refreshComplete');
+        });
+    }
+    $scope.loadMore = function () {
+        if ($scope.scollData.pageLoading) {
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+        }
+        else {
+            $scope.scollData.currentPageIndex += 1;
+            GoodsInformations.getGoodsInformations('手机', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+                if (data == null || data.length == 0) {
+                    $scope.scollData.haveData = false;
+                    return;
+                } else $scope.scollData.haveData = true;
+                $scope.scollData.havaData = true;
+                $scope.goodsInformations = $scope.goodsInformations.concat(data);
+                $scope.$broadcast('scroll.infiniteScrollComplete');
+            }, function () {
+                $scope.scollData.havaData = false;
+            });
+        }
+    }
    
 })
 
-.controller('DashIonicCtrl', function ($scope) {
+.controller('DashComputerCtrl', function ($scope, GoodsInformations, $ionicLoading, $sce) {
+    $scope.noData = false;
+    $scope.scollData = {
+        currentPageIndex: 1,
+        haveData: true,
+        pageLoading: true
+    };
+    GoodsInformations.getGoodsInformations('电脑', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+        data.Picture = $sce.trustAsHtml(data.Picture);
+        if (data == null || data.length == 0) { $scope.noData = true; };
+        $scope.goodsInformations = data;
+        $scope.scollData.pageLoading = false;
+        $scope.judgeOnload = true;
+        $scope.judgeTip = false;
+        $ionicLoading.hide();
+        console.log(data);
+    }, function () {
+        $scope.judgeOnload = false;
+        $scope.judgeTip = true;
+        $ionicLoading.hide();
+    });
+    $scope.doRefresh = function () {
+        $scope.scollData.currentPageIndex = 1;
+        GoodsInformations.getGoodsInformations('电脑', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+            $scope.goodsInformations = data;
+            $scope.$broadcast('scroll.refreshComplete');
+        });
+    }
+    $scope.loadMore = function () {
+        if ($scope.scollData.pageLoading) {
+            $scope.$broadcast('scroll.infiniteScrollComplete');
+        }
+        else {
+            $scope.scollData.currentPageIndex += 1;
+            GoodsInformations.getGoodsInformations('电脑', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+                if (data == null || data.length == 0) {
+                    $scope.scollData.haveData = false;
+                    return;
+                } else $scope.scollData.haveData = true;
+                $scope.scollData.havaData = true;
+                $scope.goodsInformations = $scope.goodsInformations.concat(data);
+                $scope.$broadcast('scroll.infiniteScrollComplete');
+            }, function () {
+                $scope.scollData.havaData = false;
+            });
+        }
+    }
 })
 
-.controller('PersonalCtrl', function ($scope, $ionicPopover, Users,$interval) {
+    .controller('DashEverydayCtrl', function ($scope, GoodsInformations, $ionicLoading, $sce) {
+        $scope.noData = false;
+        $scope.scollData = {
+            currentPageIndex: 1,
+            haveData: true,
+            pageLoading: true
+        };
+        GoodsInformations.getGoodsInformations('日用', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+            data.Picture = $sce.trustAsHtml(data.Picture);
+            if (data == null || data.length == 0) { $scope.noData = true; };
+            $scope.goodsInformations = data;
+            $scope.scollData.pageLoading = false;
+            $scope.judgeOnload = true;
+            $scope.judgeTip = false;
+            $ionicLoading.hide();
+            console.log(data);
+        }, function () {
+            $scope.judgeOnload = false;
+            $scope.judgeTip = true;
+            $ionicLoading.hide();
+        });
+        $scope.doRefresh = function () {
+            $scope.scollData.currentPageIndex = 1;
+            GoodsInformations.getGoodsInformations('日用', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+                $scope.goodsInformations = data;
+                $scope.$broadcast('scroll.refreshComplete');
+            });
+        }
+        $scope.loadMore = function () {
+            if ($scope.scollData.pageLoading) {
+                $scope.$broadcast('scroll.infiniteScrollComplete');
+            }
+            else {
+                $scope.scollData.currentPageIndex += 1;
+                GoodsInformations.getGoodsInformations('日用', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+                    if (data == null || data.length == 0) {
+                        $scope.scollData.haveData = false;
+                        return;
+                    } else $scope.scollData.haveData = true;
+                    $scope.scollData.havaData = true;
+                    $scope.goodsInformations = $scope.goodsInformations.concat(data);
+                    $scope.$broadcast('scroll.infiniteScrollComplete');
+                }, function () {
+                    $scope.scollData.havaData = false;
+                });
+            }
+        }
+    })
+    .controller('DashClothingCtrl', function ($scope, GoodsInformations, $ionicLoading, $sce) {
+        $scope.noData = false;
+        $scope.scollData = {
+            currentPageIndex: 1,
+            haveData: true,
+            pageLoading: true
+        };
+        GoodsInformations.getGoodsInformations('衣帽', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+            data.Picture = $sce.trustAsHtml(data.Picture);
+            if (data == null || data.length == 0) { $scope.noData = true; };
+            $scope.goodsInformations = data;
+            $scope.scollData.pageLoading = false;
+            $scope.judgeOnload = true;
+            $scope.judgeTip = false;
+            $ionicLoading.hide();
+            console.log(data);
+        }, function () {
+            $scope.judgeOnload = false;
+            $scope.judgeTip = true;
+            $ionicLoading.hide();
+        });
+        $scope.doRefresh = function () {
+            $scope.scollData.currentPageIndex = 1;
+            GoodsInformations.getGoodsInformations('衣帽', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+                $scope.goodsInformations = data;
+                $scope.$broadcast('scroll.refreshComplete');
+            });
+        }
+        $scope.loadMore = function () {
+            if ($scope.scollData.pageLoading) {
+                $scope.$broadcast('scroll.infiniteScrollComplete');
+            }
+            else {
+                $scope.scollData.currentPageIndex += 1;
+                GoodsInformations.getGoodsInformations('衣帽', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+                    if (data == null || data.length == 0) {
+                        $scope.scollData.haveData = false;
+                        return;
+                    } else $scope.scollData.haveData = true;
+                    $scope.scollData.havaData = true;
+                    $scope.goodsInformations = $scope.goodsInformations.concat(data);
+                    $scope.$broadcast('scroll.infiniteScrollComplete');
+                }, function () {
+                    $scope.scollData.havaData = false;
+                });
+            }
+        }
+    })
+    .controller('DashOtherCtrl', function ($scope, GoodsInformations, $ionicLoading, $sce) {
+        $scope.noData = false;
+        $scope.scollData = {
+            currentPageIndex: 1,
+            haveData: true,
+            pageLoading: true
+        };
+        GoodsInformations.getGoodsInformations('其他', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+            data.Picture = $sce.trustAsHtml(data.Picture);
+            if (data == null || data.length == 0) { $scope.noData = true; };
+            $scope.goodsInformations = data;
+            $scope.scollData.pageLoading = false;
+            $scope.judgeOnload = true;
+            $scope.judgeTip = false;
+            $ionicLoading.hide();
+            console.log(data);
+        }, function () {
+            $scope.judgeOnload = false;
+            $scope.judgeTip = true;
+            $ionicLoading.hide();
+        });
+        $scope.doRefresh = function () {
+            $scope.scollData.currentPageIndex = 1;
+            GoodsInformations.getGoodsInformations('其他', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+                $scope.goodsInformations = data;
+                $scope.$broadcast('scroll.refreshComplete');
+            });
+        }
+        $scope.loadMore = function () {
+            if ($scope.scollData.pageLoading) {
+                $scope.$broadcast('scroll.infiniteScrollComplete');
+            }
+            else {
+                $scope.scollData.currentPageIndex += 1;
+                GoodsInformations.getGoodsInformations('其他', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+                    if (data == null || data.length == 0) {
+                        $scope.scollData.haveData = false;
+                        return;
+                    } else $scope.scollData.haveData = true;
+                    $scope.scollData.havaData = true;
+                    $scope.goodsInformations = $scope.goodsInformations.concat(data);
+                    $scope.$broadcast('scroll.infiniteScrollComplete');
+                }, function () {
+                    $scope.scollData.havaData = false;
+                });
+            }
+        }
+    })
+    .controller('DashElectricCtrl', function ($scope, GoodsInformations, $ionicLoading, $sce) {
+        $scope.noData = false;
+        $scope.scollData = {
+            currentPageIndex: 1,
+            haveData: true,
+            pageLoading: true
+        };
+        GoodsInformations.getGoodsInformations('电器', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+            data.Picture = $sce.trustAsHtml(data.Picture);
+            if (data == null || data.length == 0) { $scope.noData = true; };
+            $scope.goodsInformations = data;
+            $scope.scollData.pageLoading = false;
+            $scope.judgeOnload = true;
+            $scope.judgeTip = false;
+            $ionicLoading.hide();
+            console.log(data);
+        }, function () {
+            $scope.judgeOnload = false;
+            $scope.judgeTip = true;
+            $ionicLoading.hide();
+        });
+        $scope.doRefresh = function () {
+            $scope.scollData.currentPageIndex = 1;
+            GoodsInformations.getGoodsInformations('电器', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+                $scope.goodsInformations = data;
+                $scope.$broadcast('scroll.refreshComplete');
+            });
+        }
+        $scope.loadMore = function () {
+            if ($scope.scollData.pageLoading) {
+                $scope.$broadcast('scroll.infiniteScrollComplete');
+            }
+            else {
+                $scope.scollData.currentPageIndex += 1;
+                GoodsInformations.getGoodsInformations('电器', '', $scope.scollData.currentPageIndex, 10).then(function (data) {
+                    if (data == null || data.length == 0) {
+                        $scope.scollData.haveData = false;
+                        return;
+                    } else $scope.scollData.haveData = true;
+                    $scope.scollData.havaData = true;
+                    $scope.goodsInformations = $scope.goodsInformations.concat(data);
+                    $scope.$broadcast('scroll.infiniteScrollComplete');
+                }, function () {
+                    $scope.scollData.havaData = false;
+                });
+            }
+        }
+    })
+    
+.controller('PersonalCtrl', function ($scope, $ionicPopover, Users, $interval) {
+    $scope.logOut = function () {
+        Users.logOut();
+        $state.go('tab.personal');
+    }
     //$scope.judge = Users.checkLogin();
     $interval(function () {
         $scope.judge = Users.checkLogin();
@@ -371,11 +852,9 @@ angular.module('starter.controllers', [])
 
 .controller('PublishCtrl', function ($scope, Camera,$ionicPopup,$ionicLoading,GoodsInformations,Users) {
     //$scope.restNumber = 140 - $scope.number.length;
-    //$scope.$apply(
-    //    $scope.surplus = function () {
-    //        return 140 - $scope.data.description.length;
-    //    }
-    //)
+    $scope.surplus = function () {
+        return 200 - $scope.data.description.length;
+    }
     $scope.showError = function (ngModelController, error) {
         return ngModelController.$error[error];
     }
@@ -571,3 +1050,17 @@ angular.module('starter.controllers', [])
 })
 
 .controller('AlterPersonalCtrl', function () { })
+
+.controller('PublishDetailCtrl', function ($scope,GoodsInformations,$stateParams,$sce,Details) {
+    $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
+        viewData.enableBack = true;
+    });
+    GoodsInformations.getGoodsDetail($stateParams.CommodityID)
+    .then(function (data) {
+        data.Picture = $sce.trustAsHtml(data.Picture);
+        var time = data.TradeEndTime.substring(0, 10);
+        data.TradeEndTime = time;
+        $scope.goodsInformation = data;
+    });
+    $scope.display = Details.hideOrShow();
+})

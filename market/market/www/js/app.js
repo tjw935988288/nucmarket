@@ -50,7 +50,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 var token = localStorage.getItem('token');
                 if (token) {
                     config.headers.Authorization = 'Bearer ' + token;
-                    console.log('success');
                 }
                 return config;
             }
@@ -82,65 +81,84 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
           templateUrl: 'templates/tabs.html'
       })
 
-    //.state('tab.dash', {
-    //    url: '/dash',
-    //    views: {
-    //        'tab-dash': {
-    //            templateUrl: 'templates/dash/tab-dash.html',
-    //            controller: 'DashCtrl'
-    //        }
-    //    }
-    //})
-
-    .state('tab.dash-life', {
-        url: '/life',
+    .state('tab.dash-digital', {
+        url: '/digital',
         views: {
             'tab-dash': {
-                templateUrl: 'templates/dash/dash-life.html',
-                controller: 'DashLifeCtrl'
+                templateUrl: 'templates/dash/dash-digital.html',
+                controller: 'DashDigitalCtrl'
             }
         }
     })
 
-    .state('tab.dash-study', {
-        url: '/study',
+    .state('tab.dash-book', {
+        url: '/book',
         views: {
             'tab-dash': {
-                templateUrl: 'templates/dash/dash-study.html',
-                controller: 'DashStudyCtrl'
+                templateUrl: 'templates/dash/dash-book.html',
+                controller: 'DashBookCtrl'
             }
         }
     })
 
-    .state('tab.dash-spotrs', {
-        url: '/sports',
+    .state('tab.dash-electric', {
+        url: '/electric',
         views: {
             'tab-dash': {
-                templateUrl: 'templates/dash/dash-sports.html',
-                controller: 'DashSportsCtrl'
+                templateUrl: 'templates/dash/dash-electric.html',
+                controller: 'DashElectricCtrl'
             }
         }
     })
 
-    .state('tab.dash-play', {
-        url: '/play',
+    .state('tab.dash-phone', {
+        url: '/phone',
         views: {
             'tab-dash': {
-                templateUrl: 'templates/dash/dash-play.html',
-                controller: 'DashPlayCtrl'
+                templateUrl: 'templates/dash/dash-phone.html',
+                controller: 'DashPhoneCtrl'
             }
         }
     })
 
-    .state('tab.dash-ionic', {
-        url: '/ionic',
+    .state('tab.dash-computer', {
+        url: '/computer',
         views: {
             'tab-dash': {
-                templateUrl: 'templates/dash/dash-ionic.html',
-                controller: 'DashIonicCtrl'
+                templateUrl: 'templates/dash/dash-computer.html',
+                controller: 'DashComputerCtrl'
             }
         }
     })
+        .state('tab.dash-everyday', {
+            url: '/everyday',
+            views: {
+                'tab-dash': {
+                    templateUrl: 'templates/dash/dash-everyday.html',
+                    controller: 'DashEverydayCtrl'
+                }
+            }
+        })
+
+        .state('tab.dash-clothing', {
+            url: '/clothing',
+            views: {
+                'tab-dash': {
+                    templateUrl: 'templates/dash/dash-clothing.html',
+                    controller: 'DashClothingCtrl'
+                }
+            }
+        })
+
+        .state('tab.dash-other', {
+            url: '/other',
+            views: {
+                'tab-dash': {
+                    templateUrl: 'templates/dash/dash-other.html',
+                    controller: 'DashOtherCtrl'
+                }
+            }
+        })
 
       .state('tab.publish', {
           url: '/publish',
@@ -161,6 +179,30 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
               }
           }
       })
+         .state('publish-list', {
+             url: '/publish-list',
+             templateUrl: 'templates/buyAndSell/publish-list.html',
+             controller: 'publishListCtrl'
+         })
+
+        //.state('tab.publish-list', {
+        //    url: '/personal/publish-list',
+        //    views: {
+        //        'tab-personal': {
+        //            templateUrl: 'templates/buyAndSell/publish-list.html',
+        //            controller: 'publishListCtrl'
+        //        }
+        //    }
+        //})
+        //.state('tab.message-detail', {
+            //    url: '/message/:manyId',
+            //    views: {
+            //        'tab-message': {
+            //            templateUrl: 'templates/message/message-detail.html',
+            //            controller: 'MessageDetailCtrl'
+            //        }
+            //    }
+            //})
 
         .state('tab.alterPersonal', {
             url:'/personal/alterPersonal',
@@ -210,25 +252,25 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
           controller: 'CollectCtrl'
       })
 
-      .state('tab.message', {
-          url: '/message',
-          views: {
-              'tab-message': {
-                  templateUrl: 'templates/message/message-list.html',
-                  controller: 'MessageListCtrl'
-              }
-          }
-      })
+    //  .state('tab.message', {
+    //      url: '/message',
+    //      views: {
+    //          'tab-message': {
+    //              templateUrl: 'templates/message/message-list.html',
+    //              controller: 'MessageListCtrl'
+    //          }
+    //      }
+    //  })
 
-    .state('tab.message-detail', {
-        url: '/message/:manyId',
-        views: {
-            'tab-message': {
-                templateUrl: 'templates/message/message-detail.html',
-                controller: 'MessageDetailCtrl'
-            }
-        }
-    })
+    //.state('tab.message-detail', {
+    //    url: '/message/:manyId',
+    //    views: {
+    //        'tab-message': {
+    //            templateUrl: 'templates/message/message-detail.html',
+    //            controller: 'MessageDetailCtrl'
+    //        }
+    //    }
+    //})
 
     .state('buy', {
         url: '/buy',
@@ -236,16 +278,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         controller: 'BuyCtrl'
     })
 
-    //.state('regist', {
-    //    url: '/regist',
-    //    templateUrl: 'templates/personal/regist.html'
-    //})
-
-    //.state('login', {
-    //    url: '/login',
-    //    templateUrl: 'templates/personal/login.html',
-    //    controller:'LoginCtrl'
-    //})
+     .state('publish-detail', {
+         url: '/publish-list/:CommodityID',
+         templateUrl: 'templates/buyAndSell/publish-detail.html',
+         controller: 'PublishDetailCtrl'
+     })
 
      //这个state要放在所有state的最后，应为/:thingid会匹配所有的脱离tab的页面，如:url:'/buy',从而造成路由错误。
      .state('dash-detail', {
@@ -253,7 +290,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
          templateUrl: 'templates/dash/dash-detail.html',
          controller: 'DashDetailCtrl'
      })
-    $urlRouterProvider.otherwise('/tab/life');
+    $urlRouterProvider.otherwise('/tab/computer');
 
 }
 

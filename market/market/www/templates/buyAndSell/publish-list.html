@@ -1,0 +1,15 @@
+﻿<ion-view view-title="发布记录">
+    <ion-content>
+        <div class="list">
+            <!--这里显示商品详情的页面需要独立于tabs,单独设置一个页面。-->
+            <a class="item" ng-repeat="publition in publitions" href="#/publish-list/{{publition.CommodityID}}">
+                <div class="collectionPicture" ng-bind-html="publition.Picture"></div>
+                <div class="character">
+                    <h2>{{publition.Title}}</h2>
+                    <p style="color:red">￥{{publition.Price}}</p>
+                </div>
+            </a>
+
+        </div>
+    </ion-content>
+</ion-view>
